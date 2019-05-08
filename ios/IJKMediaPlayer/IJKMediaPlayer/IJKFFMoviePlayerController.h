@@ -25,6 +25,7 @@
 #import "IJKFFMonitor.h"
 #import "IJKFFOptions.h"
 #import "IJKSDLGLViewProtocol.h"
+#import "IJTrackMetadata.h"
 
 // media meta
 #define k_IJKM_KEY_FORMAT         @"format"
@@ -69,6 +70,8 @@ typedef enum IJKLogLevel {
     k_IJK_LOG_FATAL   = 7,
     k_IJK_LOG_SILENT  = 8,
 } IJKLogLevel;
+
+
 
 @interface IJKFFMoviePlayerController : NSObject <IJKMediaPlayback>
 
@@ -135,6 +138,13 @@ typedef enum IJKLogLevel {
 @property (nonatomic, retain) id<IJKMediaUrlOpenDelegate> liveOpenDelegate;
 
 @property (nonatomic, retain) id<IJKMediaNativeInvokeDelegate> nativeInvokeDelegate;
+
+@property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *audioTracks;
+@property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *videoTracks;
+@property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *subtitlesTracks;
+
+@property (nonatomic, strong) IJTrackMetadata *selectedAudioTrack;
+@property (nonatomic, strong) IJTrackMetadata *selectedVideoTrack;
 
 - (void)didShutdown;
 

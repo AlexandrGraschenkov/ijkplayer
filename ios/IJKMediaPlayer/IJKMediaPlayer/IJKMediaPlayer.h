@@ -30,3 +30,5 @@
 #import "IJKAVMoviePlayerController.h"
 
 #import "IJKMediaModule.h"
+
+#import "IJKMediaHelper.h"

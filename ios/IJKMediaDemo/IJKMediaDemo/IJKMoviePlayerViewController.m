@@ -62,13 +62,13 @@
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 //    [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationLandscapeLeft animated:NO];
 
-#ifdef DEBUG
-    [IJKFFMoviePlayerController setLogReport:YES];
-    [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_DEBUG];
-#else
+//#ifdef DEBUG
+//    [IJKFFMoviePlayerController setLogReport:YES];
+//    [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_DEBUG];
+//#else
     [IJKFFMoviePlayerController setLogReport:NO];
     [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_INFO];
-#endif
+//#endif
 
     [IJKFFMoviePlayerController checkIfFFmpegVersionMatch:YES];
     // [IJKFFMoviePlayerController checkIfPlayerVersionMatch:YES major:1 minor:0 micro:0];
@@ -142,6 +142,17 @@
         player.shouldShowHudView = !player.shouldShowHudView;
         
         sender.title = (player.shouldShowHudView ? @"HUD On" : @"HUD Off");
+    }
+}
+
+- (IBAction)audioPressed:(id)sender {
+    if ([self.player isKindOfClass:[IJKFFMoviePlayerController class]]) {
+        IJKFFMoviePlayerController *player = self.player;
+        NSInteger idx = [player.audioTracks indexOfObject:player.selectedAudioTrack];
+        if (idx != NSNotFound && player.audioTracks.count > 1) {
+            idx = (idx + 1) % player.audioTracks.count;
+            player.selectedAudioTrack = player.audioTracks[idx];
+        }
     }
 }
 

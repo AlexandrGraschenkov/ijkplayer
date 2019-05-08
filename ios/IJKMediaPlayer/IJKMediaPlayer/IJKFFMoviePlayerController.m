@@ -41,11 +41,20 @@ static const char *kIJKFFRequiredFFmpegVersion = "ff3.4--ijk0.8.7--20180103--001
 @property (nonatomic, weak) id object;
 @end
 
+
+@interface IJTrackMetadata (Hidden)
++ (NSDictionary *)AVDictionaryToNSDictionary:(AVDictionary *)avDictionary;
++ (instancetype)metadataWithAVDictionary:(AVDictionary *)avDictionary;
+@end
+
+
 @implementation IJKWeakHolder
 @end
 
 @interface IJKFFMoviePlayerController()
-
+@property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *audioTracks;
+@property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *videoTracks;
+@property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *subtitlesTracks;
 @end
 
 @implementation IJKFFMoviePlayerController {
@@ -102,6 +111,8 @@ static const char *kIJKFFRequiredFFmpegVersion = "ff3.4--ijk0.8.7--20180103--001
 @synthesize isSeekBuffering = _isSeekBuffering;
 @synthesize isAudioSync = _isAudioSync;
 @synthesize isVideoSync = _isVideoSync;
+@synthesize selectedAudioTrack = _selectedAudioTrack;
+@synthesize selectedVideoTrack = _selectedVideoTrack;
 
 #define FFP_IO_STAT_STEP (50 * 1024)
 
@@ -180,10 +191,14 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
 
     self = [super init];
     if (self) {
+        self.subtitlesTracks = @[];
+        self.audioTracks = @[];
+        self.videoTracks = @[];
+        
         ijkmp_global_init();
         ijkmp_global_set_inject_callback(ijkff_inject_callback);
 
-        [IJKFFMoviePlayerController checkIfFFmpegVersionMatch:NO];
+//        [IJKFFMoviePlayerController checkIfFFmpegVersionMatch:NO];
 
         if (options == nil)
             options = [IJKFFOptions optionsByDefault];
@@ -240,7 +255,7 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
         ijkmp_ios_set_glview(_mediaPlayer, _glView);
         ijkmp_set_option(_mediaPlayer, IJKMP_OPT_CATEGORY_PLAYER, "overlay-format", "fcc-_es2");
 #ifdef DEBUG
-        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_DEBUG];
+        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_FATAL];
 #else
         [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_SILENT];
 #endif
@@ -287,7 +302,7 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
         ijkmp_global_init();
         ijkmp_global_set_inject_callback(ijkff_inject_callback);
 
-        [IJKFFMoviePlayerController checkIfFFmpegVersionMatch:NO];
+//        [IJKFFMoviePlayerController checkIfFFmpegVersionMatch:NO];
 
         if (options == nil)
             options = [IJKFFOptions optionsByDefault];
@@ -766,6 +781,23 @@ inline static int getPlayerOption(IJKFFOptionCategory category)
     return _glView.fps;
 }
 
+- (void)setSelectedAudioTrack:(IJTrackMetadata *)selectedAudioTrack {
+    if (selectedAudioTrack == NULL || _selectedAudioTrack == selectedAudioTrack) return;
+    _selectedAudioTrack = selectedAudioTrack;
+    ijkmp_set_stream_selected(_mediaPlayer, (int)_selectedAudioTrack.index, 1);
+    
+    NSTimeInterval ret = ijkmp_get_current_position(_mediaPlayer);
+    ijkmp_seek_to(_mediaPlayer, ret);
+}
+
+- (void)setSelectedVideoTrack:(IJTrackMetadata *)selectedVideoTrack {
+    if (selectedVideoTrack == NULL || _selectedVideoTrack == selectedVideoTrack) return;
+    _selectedVideoTrack = selectedVideoTrack;
+    ijkmp_set_stream_selected(_mediaPlayer, (int)_selectedVideoTrack.index, 1);
+    
+    
+}
+
 inline static NSString *formatedDurationMilli(int64_t duration) {
     if (duration >=  1000) {
         return [NSString stringWithFormat:@"%.2f sec", ((float)duration) / 1000];
@@ -1019,6 +1051,7 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
         return;
 
     AVMessage *avmsg = &msg->_msg;
+    printf("Msg what: %d\n", avmsg->what);
     switch (avmsg->what) {
         case FFP_MSG_FLUSH:
             break;
@@ -1078,6 +1111,9 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
 
                 NSMutableArray *streams = [[NSMutableArray alloc] init];
 
+                NSMutableArray *audioTracks = [NSMutableArray new];
+                NSMutableArray *videoTracks = [NSMutableArray new];
+                NSMutableArray *subtitlesTracks = [NSMutableArray new];
                 size_t count = ijkmeta_get_children_count_l(rawMeta);
                 for(size_t i = 0; i < count; ++i) {
                     IjkMediaMeta *streamRawMeta = ijkmeta_get_child_l(rawMeta, i);
@@ -1102,8 +1138,12 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
                                 fillMetaInternal(streamMeta, streamRawMeta, IJKM_KEY_SAR_NUM, nil);
                                 fillMetaInternal(streamMeta, streamRawMeta, IJKM_KEY_SAR_DEN, nil);
 
+                                IJTrackMetadata *track = [IJTrackMetadata metadataWithAVDictionary:ijkmeta_get_dict(streamRawMeta)];
+                                track.index = i;
+                                [videoTracks addObject:track];
                                 if (video_stream == i) {
                                     _monitor.videoMeta = streamMeta;
+                                    _selectedVideoTrack = track;
 
                                     int64_t fps_num = ijkmeta_get_int64_l(streamRawMeta, IJKM_KEY_FPS_NUM, 0);
                                     int64_t fps_den = ijkmeta_get_int64_l(streamRawMeta, IJKM_KEY_FPS_DEN, 0);
@@ -1114,12 +1154,21 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
                                 }
 
                             } else if (0 == strcmp(type, IJKM_VAL_TYPE__AUDIO)) {
+                                
                                 fillMetaInternal(streamMeta, streamRawMeta, IJKM_KEY_SAMPLE_RATE, nil);
                                 fillMetaInternal(streamMeta, streamRawMeta, IJKM_KEY_CHANNEL_LAYOUT, nil);
-
+                                
+                                IJTrackMetadata *track = [IJTrackMetadata metadataWithAVDictionary:ijkmeta_get_dict(streamRawMeta)];
+                                track.index = i;
+                                [audioTracks addObject:track];
                                 if (audio_stream == i) {
                                     _monitor.audioMeta = streamMeta;
+                                    _selectedAudioTrack = track;
                                 }
+                            } else if (0 == strcmp(type, IJKM_VAL_TYPE__TIMEDTEXT)) {
+                                IJTrackMetadata *track = [IJTrackMetadata metadataWithAVDictionary:ijkmeta_get_dict(streamRawMeta)];
+                                track.index = i;
+                                [subtitlesTracks addObject:track];
                             }
                         }
                     }
@@ -1127,6 +1176,9 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
                     [streams addObject:streamMeta];
                 }
 
+                self.audioTracks = audioTracks;
+                self.videoTracks = videoTracks;
+                self.subtitlesTracks = subtitlesTracks;
                 [newMediaMeta setObject:streams forKey:kk_IJKM_KEY_STREAMS];
 
                 ijkmeta_unlock(rawMeta);

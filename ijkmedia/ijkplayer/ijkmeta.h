@@ -27,6 +27,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "ff_ffinc.h"
+#include "ijksdl/ijksdl_misc.h"
+
 // media meta
 #define IJKM_KEY_FORMAT         "format"
 #define IJKM_KEY_DURATION_US    "duration_us"
@@ -89,5 +92,7 @@ int64_t       ijkmeta_get_int64_l(IjkMediaMeta *meta, const char *name, int64_t 
 size_t        ijkmeta_get_children_count_l(IjkMediaMeta *meta);
 // do not free
 IjkMediaMeta *ijkmeta_get_child_l(IjkMediaMeta *meta, size_t index);
+
+AVDictionary *ijkmeta_get_dict(IjkMediaMeta *meta);
 
 #endif//IJKPLAYER__IJKMETA_H

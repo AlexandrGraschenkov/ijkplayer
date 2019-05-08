@@ -270,9 +270,19 @@ void ijkmeta_set_avformat_context_l(IjkMediaMeta *meta, AVFormatContext *ic)
             }
         }
 
+//        AVDictionaryEntry * entry = NULL;
+//        while ((entry = av_dict_get(st->metadata, "", entry, AV_DICT_IGNORE_SUFFIX))) {
+//            printf("Key: %s Val: %s\n", entry->key, entry->value);
+//        }
+//        printf("----------------");
+        
         AVDictionaryEntry *lang = av_dict_get(st->metadata, "language", NULL, 0);
         if (lang && lang->value)
             ijkmeta_set_string_l(stream_meta, IJKM_KEY_LANGUAGE, lang->value);
+        
+        AVDictionaryEntry *title = av_dict_get(st->metadata, "title", NULL, 0);
+        if (title && title->value)
+            ijkmeta_set_string_l(stream_meta, "title", title->value);
 
         ijkmeta_append_child_l(meta, stream_meta);
         stream_meta = NULL;
@@ -323,4 +333,12 @@ IjkMediaMeta *ijkmeta_get_child_l(IjkMediaMeta *meta, size_t index)
         return NULL;
 
     return meta->children[index];
+}
+
+
+AVDictionary *ijkmeta_get_dict(IjkMediaMeta *meta)
+{
+    if (!meta)
+        return NULL;
+    return meta->dict;
 }
