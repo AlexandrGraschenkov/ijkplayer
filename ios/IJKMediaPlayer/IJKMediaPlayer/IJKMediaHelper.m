@@ -340,6 +340,34 @@
     return hasSubs;
 }
 
++ (VideoInfoObjc)getInfo:(NSString *)path {
+    av_register_all();
+    static AVFormatContext *pFormatCtx;
+    if (!pFormatCtx) {
+        pFormatCtx = avformat_alloc_context();
+    }
+    VideoInfoObjc info = {0, false};
+    BOOL isOk = true;
+    
+    isOk = avformat_open_input(&pFormatCtx, [path UTF8String], NULL, NULL) == 0;
+    isOk &= avformat_find_stream_info(pFormatCtx, NULL) >= 0;
+    if (isOk) {
+        for (int i = 0; i < pFormatCtx->nb_streams; i++) {
+            if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE) {
+                info.subtitles = true;
+                break;
+            }
+        }
+        if (pFormatCtx->duration != AV_NOPTS_VALUE) {
+            info.duration = pFormatCtx->duration * 1.0 / AV_TIME_BASE;
+        }
+    }
+    
+    avformat_close_input(&pFormatCtx);
+    
+    return info;
+}
+
 //+ (void)printSubtitles:(NSString *)path {
 //    AVFormatContext *pFormatCtx;
 //    
@@ -382,6 +410,9 @@
 //    }
 //}
 
+static int kTestIdx = 1;
+static NSMutableData *testData = nil;
+
 + (void)readSubtitles:(NSString *)videoPath saveFolder:(NSString *)saveFolder {
     AVFormatContext *pFormatCtx;
     
@@ -411,8 +442,18 @@
             IJKSubtitleWriter *writer = [IJKSubtitleWriter writerFile:[saveFolder stringByAppendingPathComponent:name] trackIdx:i];
             dic[@(i)] = writer;
         }
+//        if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+//            AVStream *stream = pFormatCtx->streams[i];
+//            IJKMetadata *metadata = [IJKMetadata metadataWithAVDictionary:pFormatCtx->streams[i]->metadata];
+//            NSLog(@"Meta %d: %@", i, metadata.metadata);
+//        }
     }
+    
     [self parseSubtitles:pFormatCtx dic:dic savePath:saveFolder];
+//    testData = [NSMutableData new];
+//    NSString *newPath = [videoPath stringByDeletingLastPathComponent];
+//    newPath = [newPath stringByAppendingPathComponent:@"audio_2.aac"];
+//    [testData writeToFile:newPath atomically:YES];
     avformat_close_input(&pFormatCtx);
 }
 
@@ -443,6 +484,9 @@
         IJKSubtitleWriter *writer = dic[@(packet->stream_index)];
         if (writer != nil) {
             [writer addSub:packet->data startTime:packet->pts duration:packet->duration];
+        }
+        if (packet->stream_index == kTestIdx) {
+            [testData appendBytes:packet->data length:packet->size];
         }
         
         av_packet_unref(packet);

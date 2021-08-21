@@ -55,6 +55,7 @@ static const char *kIJKFFRequiredFFmpegVersion = "ff3.4--ijk0.8.7--20180103--001
 @property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *audioTracks;
 @property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *videoTracks;
 @property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *subtitlesTracks;
+@property (nonatomic, strong, readwrite) NSString *fileFormat;
 @end
 
 @implementation IJKFFMoviePlayerController {
@@ -1051,7 +1052,7 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
         return;
 
     AVMessage *avmsg = &msg->_msg;
-    printf("Msg what: %d\n", avmsg->what);
+//    printf("Msg what: %d\n", avmsg->what);
     switch (avmsg->what) {
         case FFP_MSG_FLUSH:
             break;
@@ -1179,6 +1180,7 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
                 self.audioTracks = audioTracks;
                 self.videoTracks = videoTracks;
                 self.subtitlesTracks = subtitlesTracks;
+                self.fileFormat = newMediaMeta[@IJKM_KEY_FORMAT];
                 [newMediaMeta setObject:streams forKey:kk_IJKM_KEY_STREAMS];
 
                 ijkmeta_unlock(rawMeta);

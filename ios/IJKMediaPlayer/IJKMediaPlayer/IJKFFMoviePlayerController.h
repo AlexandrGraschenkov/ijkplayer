@@ -142,6 +142,7 @@ typedef enum IJKLogLevel {
 @property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *audioTracks;
 @property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *videoTracks;
 @property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *subtitlesTracks;
+@property (nonatomic, strong, readonly) NSString *fileFormat;
 
 @property (nonatomic, strong) IJTrackMetadata *selectedAudioTrack;
 @property (nonatomic, strong) IJTrackMetadata *selectedVideoTrack;

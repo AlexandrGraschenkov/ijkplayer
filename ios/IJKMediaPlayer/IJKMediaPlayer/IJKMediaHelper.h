@@ -11,11 +11,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef struct VideoInfoObjc {
+    double duration;
+    BOOL subtitles;
+} VideoInfoObjc;
+
 @interface IJKMediaHelper : NSObject
 + (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTime:(NSTimeInterval)time;
 + (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTimePercent:(double)timePercent; // 0..1
 + (NSTimeInterval)durationOfVideoAtPath:(NSString *)path;
 + (BOOL)hasSubtitles:(NSString *)path;
++ (VideoInfoObjc)getInfo:(NSString *)path;
 
 + (void)readSubtitles:(NSString *)videoPath saveFolder:(NSString *)saveFolder;
 + (NSArray<IJKSubtitles *> *)readSubtitles:(NSString *)videoPath;
