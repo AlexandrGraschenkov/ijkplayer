@@ -24,7 +24,11 @@ NSDictionary * IJKFoundationBrigeOfAVDictionary(AVDictionary * avDictionary)
         @autoreleasepool {
             NSString * key = [NSString stringWithUTF8String:entry->key];
             NSString * value = [NSString stringWithUTF8String:entry->value];
-            [dictionary setObject:value forKey:key];
+            if (key && value) {
+                [dictionary setObject:value forKey:key];
+            } else {
+                NSLog(@"Nil: %@ %@", key, value);
+            }
         }
     }
     
@@ -99,18 +103,43 @@ void fillTime(char *str, int64_t time) {
 }
 
 - (void)addSub:(uint8_t *)text startTime:(int64_t)startTime duration:(int64_t)duration {
+    if (!file || text == NULL) return;
+    
+    idx++;
+    fillTime(fromTime, startTime);
+    fillTime(toTime, startTime + duration);
+    fprintf(file, "%d\n%s --> %s\n", idx, fromTime, toTime);
+    int len = (int)strlen(text);
+    fprintf(file, "%.*s", len, text);
+    fprintf(file, "\n\n");
+}
+
+- (void)addSub:(uint8_t *)text len:(int)len startTime:(int64_t)startTime duration:(int64_t)duration {
+    if (!file || text == NULL) return;
+    
+    idx++;
+    fillTime(fromTime, startTime);
+    fillTime(toTime, startTime + duration);
+    fprintf(file, "%d\n%s --> %s\n", idx, fromTime, toTime);
+    fprintf(file, "%.*s", len, text);
+    fprintf(file, "\n\n");
+}
+
+- (void)addNewSubWithStartTime:(int64_t)startTime duration:(int64_t)duration {
     if (!file) return;
     
     idx++;
     fillTime(fromTime, startTime);
     fillTime(toTime, startTime + duration);
     fprintf(file, "%d\n%s --> %s\n", idx, fromTime, toTime);
-    int text_idx = 0;
-    while (text[text_idx] != 0) {
-        fprintf(file,"%c",text[text_idx]);
-        text_idx++;
-    }
-    fprintf(file, "\n\n");
+}
+
+- (void)addNewSubText:(uint8_t *)text {
+    int len = (int)strlen(text);
+    fprintf(file, "%.*s\n", len, text);
+}
+- (void)finishSub {
+    fprintf(file, "\n");
 }
 
 - (void)open {

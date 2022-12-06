@@ -12,7 +12,7 @@
 @implementation IJTrackMetadata
 
 
-+ (NSDictionary *)AVDictionaryToNSDictionary:(AVDictionary *) avDictionary
++ (NSDictionary *)AVDictionaryToNSDictionary:(AVDictionary *)avDictionary
 {
     if (avDictionary == NULL) return nil;
     
@@ -26,7 +26,9 @@
         @autoreleasepool {
             NSString * key = [NSString stringWithUTF8String:entry->key];
             NSString * value = [NSString stringWithUTF8String:entry->value];
-            [dictionary setObject:value forKey:key];
+            if (key != nil && value != nil) {
+                [dictionary setObject:value forKey:key];
+            }
         }
     }
     

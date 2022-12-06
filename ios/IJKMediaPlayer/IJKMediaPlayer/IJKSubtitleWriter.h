@@ -40,6 +40,18 @@
      startTime:(int64_t)startTime
       duration:(int64_t)duration;
 
+- (void)addSub:(uint8_t *)text
+           len:(int)len
+     startTime:(int64_t)startTime
+      duration:(int64_t)duration;
+
+// Manual sub creation line by line
+- (void)addNewSubWithStartTime:(int64_t)startTime
+                      duration:(int64_t)duration;
+- (void)addNewSubText:(uint8_t *)text;
+- (void)finishSub;
+
+
 - (void)open;
 - (void)close;
 

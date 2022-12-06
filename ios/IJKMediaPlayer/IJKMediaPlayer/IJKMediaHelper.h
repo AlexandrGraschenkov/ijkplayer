@@ -17,8 +17,8 @@ typedef struct VideoInfoObjc {
 } VideoInfoObjc;
 
 @interface IJKMediaHelper : NSObject
-+ (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTime:(NSTimeInterval)time;
-+ (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTimePercent:(double)timePercent; // 0..1
++ (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTime:(NSTimeInterval)time aspectSize:(CGSize)size;
++ (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTimePercent:(double)timePercent aspectSize:(CGSize)size; // 0..1
 + (NSTimeInterval)durationOfVideoAtPath:(NSString *)path;
 + (BOOL)hasSubtitles:(NSString *)path;
 + (VideoInfoObjc)getInfo:(NSString *)path;

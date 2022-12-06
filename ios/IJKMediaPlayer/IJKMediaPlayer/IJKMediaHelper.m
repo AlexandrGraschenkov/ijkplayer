@@ -18,7 +18,7 @@
 
 @implementation IJKMediaHelper
 
-+ (UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTime:(NSTimeInterval)time {
++ (UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTime:(NSTimeInterval)time aspectSize:(CGSize)size {
     AVFormatContext *pFormatCtx;
     AVCodecContext  *pCodecCtx;
     AVCodec         *pCodec;
@@ -91,8 +91,8 @@
     
     // Read Frame
     pFrame = av_frame_alloc();
-    buffer = av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height, 1));
-    av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height, 1);
+    buffer = av_malloc(av_image_get_buffer_size(pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height, 1));
+    av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height, 1);
     packet = (AVPacket *)av_malloc(sizeof(AVPacket));
     
     while (av_read_frame(pFormatCtx, packet) >= 0) {
@@ -105,7 +105,7 @@
             break;
         }
         if (frameFinished) {
-            image = [self imageFromeAVFrame:pFrame];
+            image = [self imageFromeAVFrame:pFrame codecContext:pCodecCtx aspectSize:size];
             break;
         }
     }
@@ -118,7 +118,7 @@
     return image;
 }
 
-+ (UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTimePercent:(double)timePercent { // 0..1
++ (UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTimePercent:(double)timePercent  aspectSize:(CGSize)size { // 0..1
     AVFormatContext *pFormatCtx;
     AVCodecContext  *pCodecCtx;
     AVCodec         *pCodec;
@@ -194,13 +194,15 @@
     double time = timePercent * duration;
     int64_t ts = (int64_t)(time / timebase);
     avformat_seek_file(pFormatCtx, videoStream, INT64_MIN, ts, INT64_MAX, AVSEEK_FLAG_FRAME);
+//    av_seek_frame(pFormatCtx, videoStream, ts, AVSEEK_FLAG_BACKWARD);
     avcodec_flush_buffers(pCodecCtx);
     
     // Read Frame
     pFrame = av_frame_alloc();
-    buffer = av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height, 1));
-    av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height, 1);
+    buffer = av_malloc(av_image_get_buffer_size(pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height, 1));
+    av_image_fill_arrays(pFrame->data, pFrame->linesize, buffer, pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height, 1);
     packet = (AVPacket *)av_malloc(sizeof(AVPacket));
+//    packet = av_packet_alloc();
     
     while (av_read_frame(pFormatCtx, packet) >= 0) {
         if (packet->stream_index == videoStream) {
@@ -212,13 +214,14 @@
             break;
         }
         if (frameFinished) {
-            image = [self imageFromeAVFrame:pFrame];
+            image = [self imageFromeAVFrame:pFrame codecContext:pCodecCtx aspectSize:size];
             break;
         }
     }
     
-    free(buffer);
-    av_free(pFrame);
+    av_free(buffer);
+    av_frame_free(&pFrame);
+//    av_packet_free(&packet);
     av_free(packet);
     avcodec_close(pCodecCtx);
     avformat_close_input(&pFormatCtx);
@@ -254,18 +257,23 @@
     return duration;
 }
 
-+ (UIImage *)imageFromeAVFrame:(AVFrame *)frame {
++ (UIImage *)imageFromeAVFrame:(AVFrame *)frame codecContext:(AVCodecContext *)context aspectSize:(CGSize)size {
     int width = frame->width;
     int height = frame->height;
-    AVPicture picture;
+
+    if (size.width > 0 && width > 0) {
+        float scale = fmaxf(size.width / width, size.height / height);
+        width = roundf(width * scale);
+        height = roundf(height * scale);
+    }
     
     struct SwsContext *imgConvertCtx = sws_getContext(frame->width,
                                                       frame->height,
-                                                      AV_PIX_FMT_YUV420P,
-                                                      frame->width,
-                                                      frame->height,
+                                                      context->pix_fmt,
+                                                      width,
+                                                      height,
                                                       AV_PIX_FMT_RGB24,
-                                                      SWS_FAST_BILINEAR,
+                                                      SWS_AREA,
                                                       NULL,
                                                       NULL,
                                                       NULL);
@@ -274,7 +282,8 @@
         return nil;
     }
     
-    
+//    AVFrame *picture = av_frame_alloc();
+    AVPicture picture;
     avpicture_alloc(&picture, AV_PIX_FMT_RGB24, width, height);
     sws_scale(imgConvertCtx,
               frame->data,
@@ -306,6 +315,7 @@
     CGDataProviderRelease(provider);
     CFRelease(data);
     
+//    av_frame_free(&picture);
     avpicture_free(&picture);
     
     return image;
@@ -350,7 +360,9 @@
     BOOL isOk = true;
     
     isOk = avformat_open_input(&pFormatCtx, [path UTF8String], NULL, NULL) == 0;
-    isOk &= avformat_find_stream_info(pFormatCtx, NULL) >= 0;
+    if (isOk) {
+        isOk = avformat_find_stream_info(pFormatCtx, NULL) >= 0;
+    }
     if (isOk) {
         for (int i = 0; i < pFormatCtx->nb_streams; i++) {
             if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE) {
@@ -410,7 +422,7 @@
 //    }
 //}
 
-static int kTestIdx = 1;
+static int kTestIdx = 3;
 static NSMutableData *testData = nil;
 
 + (void)readSubtitles:(NSString *)videoPath saveFolder:(NSString *)saveFolder {
@@ -449,12 +461,31 @@ static NSMutableData *testData = nil;
 //        }
     }
     
+    testData = [NSMutableData new];
     [self parseSubtitles:pFormatCtx dic:dic savePath:saveFolder];
 //    testData = [NSMutableData new];
 //    NSString *newPath = [videoPath stringByDeletingLastPathComponent];
 //    newPath = [newPath stringByAppendingPathComponent:@"audio_2.aac"];
 //    [testData writeToFile:newPath atomically:YES];
     avformat_close_input(&pFormatCtx);
+}
+
+const char* deass(const char* ass){
+  // SSA/ASS formats:
+  // Dialogue: Marked=0,0:02:40.65,0:02:41.79,Wolf main,Cher,0000,0000,0000,,Et les enregistrements de ses ondes delta ?
+  if(strncmp(ass, "Dialogue:", strlen("Dialogue:"))){
+    return NULL;
+  }
+  const char* delim = strchr(ass, ',');
+  int commas = 0; // we want 8
+  while(delim && commas < 8){
+    delim = strchr(delim + 1, ',');
+    ++commas;
+  }
+  if(!delim){
+    return NULL;
+  }
+  return delim + 1;
 }
 
 + (void)parseSubtitles:(AVFormatContext *)context dic:(NSMutableDictionary<NSNumber *, IJKSubtitleWriter *> *)dic savePath:(NSString *)savePath {
@@ -478,25 +509,53 @@ static NSMutableData *testData = nil;
     }
     
     AVPacket *packet = (AVPacket *)av_malloc(sizeof(AVPacket));
-    
-    while( av_read_frame( context, packet ) >= 0 )
-    {
+    AVSubtitle sub;
+    double t1 = CACurrentMediaTime();
+    while( av_read_frame( context, packet ) >= 0 ) {
         IJKSubtitleWriter *writer = dic[@(packet->stream_index)];
+        
         if (writer != nil) {
-            [writer addSub:packet->data startTime:packet->pts duration:packet->duration];
+            int gotFrame = 0;
+            int ret = avcodec_decode_subtitle2(ctx, &sub, &gotFrame, packet);
+            
+            if (ret >= 0 && gotFrame && sub.num_rects > 0) {
+                AVSubtitleRect **rects = sub.rects;
+                int32_t start = (int32_t)(sub.pts/1000) + (int32_t)sub.start_display_time;
+                int32_t duration = sub.end_display_time - sub.start_display_time;
+                [writer addNewSubWithStartTime:start duration:duration];
+//                [writer addNewSubWithStartTime:packet->pts duration:packet->dts];
+                
+                for (int i = 0; i < sub.num_rects; i++) {
+                    AVSubtitleRect *rect = rects[i];
+                    if (rect->type == SUBTITLE_ASS) {
+                        // no memory allocated, we just do offset from start
+                        const char *text = deass(rect->ass);
+                        [writer addNewSubText:(uint8_t *)text];
+//                        printf("ASS %s", text);
+                    } else if (rect->type == SUBTITLE_TEXT) {;
+                        [writer addNewSubText:(uint8_t *)rect->text];
+//                        printf("TEXT %s", rect->text);
+                    }
+                }
+                [writer finishSub];
+                // it just writes some big file (similar to videofile size)
+            }
         }
-        if (packet->stream_index == kTestIdx) {
-            [testData appendBytes:packet->data length:packet->size];
-        }
+//        if (packet->stream_index == kTestIdx) {
+//            [testData appendBytes:packet->data length:packet->size];
+//        }
         
         av_packet_unref(packet);
     }
+//    avsubtitle_free(&sub);
     avcodec_close(ctx);
     av_free(packet);
     
     for (IJKSubtitleWriter *w in dic.allValues) {
         [w close];
     }
+    double t2 = CACurrentMediaTime();
+    NSLog(@"Subtitles read done: %lf", t2-t1);
 }
 
 

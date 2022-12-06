@@ -1159,7 +1159,9 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
                                 fillMetaInternal(streamMeta, streamRawMeta, IJKM_KEY_SAMPLE_RATE, nil);
                                 fillMetaInternal(streamMeta, streamRawMeta, IJKM_KEY_CHANNEL_LAYOUT, nil);
                                 
-                                IJTrackMetadata *track = [IJTrackMetadata metadataWithAVDictionary:ijkmeta_get_dict(streamRawMeta)];
+                                AVDictionary *avDict = ijkmeta_get_dict(streamRawMeta);
+                                IJTrackMetadata *track = [IJTrackMetadata metadataWithAVDictionary:avDict];
+                                
                                 track.index = i;
                                 [audioTracks addObject:track];
                                 if (audio_stream == i) {
