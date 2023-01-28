@@ -134,9 +134,17 @@ void fillTime(char *str, int64_t time) {
     fprintf(file, "%d\n%s --> %s\n", idx, fromTime, toTime);
 }
 
-- (void)addNewSubText:(uint8_t *)text {
-    int len = (int)strlen(text);
-    fprintf(file, "%.*s\n", len, text);
+- (void)addNewSubText:(const char *)text {
+    if (text) {
+        int len = (int)strlen(text);
+        if (len) {
+            fprintf(file, "%.*s\n", len, text);
+            return;
+        }
+    }
+    
+    fprintf(file, "\n");
+    
 }
 - (void)finishSub {
     fprintf(file, "\n");

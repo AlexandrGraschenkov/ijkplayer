@@ -530,10 +530,10 @@ const char* deass(const char* ass){
                     if (rect->type == SUBTITLE_ASS) {
                         // no memory allocated, we just do offset from start
                         const char *text = deass(rect->ass);
-                        [writer addNewSubText:(uint8_t *)text];
+                        [writer addNewSubText:text];
 //                        printf("ASS %s", text);
                     } else if (rect->type == SUBTITLE_TEXT) {;
-                        [writer addNewSubText:(uint8_t *)rect->text];
+                        [writer addNewSubText:rect->text];
 //                        printf("TEXT %s", rect->text);
                     }
                 }
