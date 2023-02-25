@@ -56,7 +56,7 @@
 - (void)close;
 
 
-@property (readonly) int trackIdx;
+@property (nonatomic, readonly) int trackIdx;
 @end
 
 

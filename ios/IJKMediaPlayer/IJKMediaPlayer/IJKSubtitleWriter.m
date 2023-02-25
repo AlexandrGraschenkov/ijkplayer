@@ -135,6 +135,8 @@ void fillTime(char *str, int64_t time) {
 }
 
 - (void)addNewSubText:(const char *)text {
+    if (!file) return;
+    
     if (text) {
         int len = (int)strlen(text);
         if (len) {
@@ -147,12 +149,13 @@ void fillTime(char *str, int64_t time) {
     
 }
 - (void)finishSub {
+    if (!file) return;
     fprintf(file, "\n");
 }
 
 - (void)open {
     if (file) return;
-    file = fopen([self.savePath cStringUsingEncoding:kCFStringEncodingUTF8], "w");
+    file = fopen([self.savePath cStringUsingEncoding:NSUTF8StringEncoding], "w");
 }
 
 - (void)close {
