@@ -859,11 +859,11 @@ inline static void ffp_notify_msg1(FFPlayer *ffp, int what) {
     msg_queue_put_simple3(&ffp->msg_queue, what, 0, 0);
 }
 
-inline static void ffp_notify_msg2(FFPlayer *ffp, int what, int arg1) {
+inline static void ffp_notify_msg2(FFPlayer *ffp, int what, long arg1) {
     msg_queue_put_simple3(&ffp->msg_queue, what, arg1, 0);
 }
 
-inline static void ffp_notify_msg3(FFPlayer *ffp, int what, int arg1, int arg2) {
+inline static void ffp_notify_msg3(FFPlayer *ffp, int what, long arg1, long arg2) {
     msg_queue_put_simple3(&ffp->msg_queue, what, arg1, arg2);
 }
 

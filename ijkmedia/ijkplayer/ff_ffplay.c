@@ -1175,6 +1175,9 @@ static void stream_seek(VideoState *is, int64_t pos, int64_t rel, int seek_by_by
         is->seek_flags &= ~AVSEEK_FLAG_BYTE;
         if (seek_by_bytes)
             is->seek_flags |= AVSEEK_FLAG_BYTE;
+        if (rel > 0) {
+            is->seek_flags |= AVSEEK_FLAG_ANY;
+        }
         is->seek_req = 1;
         SDL_CondSignal(is->continue_read_thread);
     }
@@ -3340,7 +3343,7 @@ static int read_thread(void *arg)
     }
     /* offset should be seeked*/
     if (ffp->seek_at_start > 0) {
-        ffp_seek_to_l(ffp, (long)(ffp->seek_at_start));
+        ffp_seek_to_l(ffp, (long)(ffp->seek_at_start), 0);
     }
 
     for (;;) {
@@ -3366,9 +3369,10 @@ static int read_thread(void *arg)
         }
 #endif
         if (is->seek_req) {
+//            int64_t tolerance = (is->seek_rel == 0) ? is->seek_pos
             int64_t seek_target = is->seek_pos;
-            int64_t seek_min    = is->seek_rel > 0 ? seek_target - is->seek_rel + 2: INT64_MIN;
-            int64_t seek_max    = is->seek_rel < 0 ? seek_target - is->seek_rel - 2: INT64_MAX;
+            int64_t seek_min    = is->seek_rel != 0 ? seek_target - is->seek_rel - 2: INT64_MIN;
+            int64_t seek_max    = is->seek_rel != 0 ? seek_target + is->seek_rel + 2: INT64_MAX;
 // FIXME the +-2 is due to rounding being not done in the correct direction in generation
 //      of the seek_pos/seek_rel variables
 
@@ -4318,7 +4322,7 @@ int ffp_start_from_l(FFPlayer *ffp, long msec)
 
     ffp->auto_resume = 1;
     ffp_toggle_buffering(ffp, 1);
-    ffp_seek_to_l(ffp, msec);
+    ffp_seek_to_l(ffp, msec, 0);
     return 0;
 }
 
@@ -4388,7 +4392,7 @@ int ffp_wait_stop_l(FFPlayer *ffp)
     return 0;
 }
 
-int ffp_seek_to_l(FFPlayer *ffp, long msec)
+int ffp_seek_to_l(FFPlayer *ffp, long msec, long tolerance)
 {
     assert(ffp);
     VideoState *is = ffp->is;
@@ -4413,7 +4417,7 @@ int ffp_seek_to_l(FFPlayer *ffp, long msec)
     // FIXME: 9 seek out of range
     // FIXME: 9 seekable
     av_log(ffp, AV_LOG_DEBUG, "stream_seek %"PRId64"(%d) + %"PRId64", \n", seek_pos, (int)msec, start_time);
-    stream_seek(is, seek_pos, 0, 0);
+    stream_seek(is, seek_pos, tolerance, 0);
     return 0;
 }
 

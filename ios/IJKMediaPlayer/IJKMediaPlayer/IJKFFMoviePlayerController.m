@@ -660,6 +660,19 @@ inline static int getPlayerOption(IJKFFOptionCategory category)
     return mpState;
 }
 
+- (void)seekTo:(NSTimeInterval)aCurrentPlaybackTime tolerance:(NSTimeInterval)tolerance {
+    if (!_mediaPlayer)
+        return;
+
+    _seeking = YES;
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:IJKMPMoviePlayerPlaybackStateDidChangeNotification
+     object:self];
+
+    _bufferingPosition = 0;
+    ijkmp_seek_to(_mediaPlayer, aCurrentPlaybackTime * 1000, tolerance * 1000);
+}
+
 - (void)setCurrentPlaybackTime:(NSTimeInterval)aCurrentPlaybackTime
 {
     if (!_mediaPlayer)
@@ -671,7 +684,7 @@ inline static int getPlayerOption(IJKFFOptionCategory category)
      object:self];
 
     _bufferingPosition = 0;
-    ijkmp_seek_to(_mediaPlayer, aCurrentPlaybackTime * 1000);
+    ijkmp_seek_to(_mediaPlayer, aCurrentPlaybackTime * 1000, 0);
 }
 
 - (NSTimeInterval)currentPlaybackTime
@@ -788,7 +801,7 @@ inline static int getPlayerOption(IJKFFOptionCategory category)
     ijkmp_set_stream_selected(_mediaPlayer, (int)_selectedAudioTrack.index, 1);
     
     NSTimeInterval ret = ijkmp_get_current_position(_mediaPlayer);
-    ijkmp_seek_to(_mediaPlayer, ret);
+    ijkmp_seek_to(_mediaPlayer, ret, 500);
 }
 
 - (void)setSelectedVideoTrack:(IJTrackMetadata *)selectedVideoTrack {

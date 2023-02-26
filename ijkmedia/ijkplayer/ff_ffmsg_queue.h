@@ -32,8 +32,8 @@
 
 typedef struct AVMessage {
     int what;
-    int arg1;
-    int arg2;
+    long arg1;
+    long arg2;
     void *obj;
     void (*free_l)(void *obj);
     struct AVMessage *next;
@@ -125,7 +125,7 @@ inline static void msg_queue_put_simple1(MessageQueue *q, int what)
     msg_queue_put(q, &msg);
 }
 
-inline static void msg_queue_put_simple2(MessageQueue *q, int what, int arg1)
+inline static void msg_queue_put_simple2(MessageQueue *q, int what, long arg1)
 {
     AVMessage msg;
     msg_init_msg(&msg);
@@ -134,7 +134,7 @@ inline static void msg_queue_put_simple2(MessageQueue *q, int what, int arg1)
     msg_queue_put(q, &msg);
 }
 
-inline static void msg_queue_put_simple3(MessageQueue *q, int what, int arg1, int arg2)
+inline static void msg_queue_put_simple3(MessageQueue *q, int what, long arg1, long arg2)
 {
     AVMessage msg;
     msg_init_msg(&msg);
@@ -149,7 +149,7 @@ inline static void msg_obj_free_l(void *obj)
     av_free(obj);
 }
 
-inline static void msg_queue_put_simple4(MessageQueue *q, int what, int arg1, int arg2, void *obj, int obj_len)
+inline static void msg_queue_put_simple4(MessageQueue *q, int what, long arg1, long arg2, void *obj, int obj_len)
 {
     AVMessage msg;
     msg_init_msg(&msg);
