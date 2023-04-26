@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-struct AVDictionary;
 
 @interface IJTrackMetadata : NSObject
 

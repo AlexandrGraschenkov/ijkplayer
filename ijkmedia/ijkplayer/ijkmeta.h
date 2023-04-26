@@ -39,11 +39,18 @@
 #define IJKM_KEY_AUDIO_STREAM   "audio"
 #define IJKM_KEY_TIMEDTEXT_STREAM "timedtext"
 
+// chapter meta
+#define IJKM_C_KEY_START        "start"
+#define IJKM_C_KEY_END          "end"
+#define IJKM_C_KEY_TITLE        "title"
+#define IJKM_C_KEY_ID           "id"
+
 // stream meta
 #define IJKM_KEY_TYPE           "type"
 #define IJKM_VAL_TYPE__VIDEO    "video"
 #define IJKM_VAL_TYPE__AUDIO    "audio"
 #define IJKM_VAL_TYPE__TIMEDTEXT "timedtext"
+#define IJKM_VAL_TYPE__CHAPTER  "chapter"
 #define IJKM_VAL_TYPE__UNKNOWN  "unknown"
 #define IJKM_KEY_LANGUAGE       "language"
 
@@ -85,6 +92,7 @@ void ijkmeta_append_child_l(IjkMediaMeta *meta, IjkMediaMeta *child);
 void ijkmeta_set_int64_l(IjkMediaMeta *meta, const char *name, int64_t value);
 void ijkmeta_set_string_l(IjkMediaMeta *meta, const char *name, const char *value);
 void ijkmeta_set_avformat_context_l(IjkMediaMeta *meta, struct AVFormatContext *ic);
+void ijkmeta_set_chapters_context_l(IjkMediaMeta **chapters_meta, struct AVFormatContext *ic);
 
 // must be freed with free();
 const char   *ijkmeta_get_string_l(IjkMediaMeta *meta, const char *name);

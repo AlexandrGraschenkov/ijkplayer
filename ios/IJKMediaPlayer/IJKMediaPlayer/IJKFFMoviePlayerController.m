@@ -47,6 +47,10 @@ static const char *kIJKFFRequiredFFmpegVersion = "ff3.4--ijk0.8.7--20180103--001
 + (instancetype)metadataWithAVDictionary:(AVDictionary *)avDictionary;
 @end
 
+@interface IJChapter (Hidden)
++ (instancetype)chapterWithAVDictionary:(AVDictionary *)avChapterDict;
+@end
+
 
 @implementation IJKWeakHolder
 @end
@@ -55,6 +59,7 @@ static const char *kIJKFFRequiredFFmpegVersion = "ff3.4--ijk0.8.7--20180103--001
 @property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *audioTracks;
 @property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *videoTracks;
 @property (nonatomic, strong, readwrite) NSArray<IJTrackMetadata *> *subtitlesTracks;
+@property (nonatomic, strong, readwrite) NSArray<IJChapter *> *chapters;
 @property (nonatomic, strong, readwrite) NSString *fileFormat;
 @end
 
@@ -195,6 +200,7 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
         self.subtitlesTracks = @[];
         self.audioTracks = @[];
         self.videoTracks = @[];
+        self.chapters = @[];
         
         ijkmp_global_init();
         ijkmp_global_set_inject_callback(ijkff_inject_callback);
@@ -1059,6 +1065,25 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
     }
 }
 
+- (NSArray<IJChapter *> *)parseChapters:(IjkMediaMeta *)chaptersArrMeta {
+    if (chaptersArrMeta == NULL) {
+        return @[];
+    }
+    
+    ijkmeta_lock(chaptersArrMeta);
+    NSMutableArray *chaptersArr = [NSMutableArray new];
+    size_t chapters_count = ijkmeta_get_children_count_l(chaptersArrMeta);
+    for (int ci = 0; ci < chapters_count; ci++) {
+        IjkMediaMeta *chapterMeta = ijkmeta_get_child_l(chaptersArrMeta, ci);
+        IJChapter *chapter = [IJChapter chapterWithAVDictionary:ijkmeta_get_dict(chapterMeta)];
+        if (chapter) {
+            [chaptersArr addObject:chapter];
+        }
+    }
+    ijkmeta_unlock(chaptersArrMeta);
+    return [chaptersArr copy];
+}
+
 - (void)postEvent: (IJKFFMoviePlayerMessage *)msg
 {
     if (!msg)
@@ -1128,6 +1153,7 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
                 NSMutableArray *audioTracks = [NSMutableArray new];
                 NSMutableArray *videoTracks = [NSMutableArray new];
                 NSMutableArray *subtitlesTracks = [NSMutableArray new];
+                NSArray *chapters = [NSArray new];
                 size_t count = ijkmeta_get_children_count_l(rawMeta);
                 for(size_t i = 0; i < count; ++i) {
                     IjkMediaMeta *streamRawMeta = ijkmeta_get_child_l(rawMeta, i);
@@ -1191,10 +1217,16 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
 
                     [streams addObject:streamMeta];
                 }
+                
+//                int chaptersCount = _mediaPlayer->ffplayer->nb_chapters;
+//                for (int i = 0; i < )
 
                 self.audioTracks = audioTracks;
                 self.videoTracks = videoTracks;
                 self.subtitlesTracks = subtitlesTracks;
+                
+                IjkMediaMeta *chaptersMeta = ijkmp_get_chapters_meta_l(_mediaPlayer);
+                self.chapters = [self parseChapters:chaptersMeta];
                 self.fileFormat = newMediaMeta[@IJKM_KEY_FORMAT];
                 [newMediaMeta setObject:streams forKey:kk_IJKM_KEY_STREAMS];
 

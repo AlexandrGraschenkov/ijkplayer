@@ -687,6 +687,7 @@ typedef struct FFPlayer {
     double preset_5_1_center_mix_level;
 
     struct IjkMediaMeta *meta;
+    struct IjkMediaMeta *chapters_meta;
 
     SDL_SpeedSampler vfps_sampler;
     SDL_SpeedSampler vdps_sampler;
@@ -737,7 +738,7 @@ inline static void ffp_reset_internal(FFPlayer *ffp)
     av_dict_free(&ffp->player_opts);
     av_dict_free(&ffp->swr_opts);
     av_dict_free(&ffp->swr_preset_opts);
-
+    
     /* ffplay options specified by the user */
     av_freep(&ffp->input_filename);
     ffp->audio_disable          = 0;
@@ -832,6 +833,7 @@ inline static void ffp_reset_internal(FFPlayer *ffp)
     ffp->render_wait_start              = 0;
 
     ijkmeta_reset(ffp->meta);
+    ijkmeta_reset(ffp->chapters_meta);
 
     SDL_SpeedSamplerReset(&ffp->vfps_sampler);
     SDL_SpeedSamplerReset(&ffp->vdps_sampler);

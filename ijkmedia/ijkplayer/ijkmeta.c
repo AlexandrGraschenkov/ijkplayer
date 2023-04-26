@@ -174,6 +174,42 @@ static int64_t get_bit_rate(AVCodecParameters *codecpar)
     return bit_rate;
 }
 
+const char *ijkmeta_get_dictionary_string_l(AVDictionary *dict, const char *name)
+{
+    if (!dict || !name)
+        return NULL;
+
+    AVDictionaryEntry *entry = av_dict_get(dict, name, NULL, 0);
+    if (!entry)
+        return NULL;
+
+    return entry->value;
+}
+
+void ijkmeta_set_chapters_context_l(IjkMediaMeta **chapters_meta, struct AVFormatContext *ic) {
+    for (int i = 0; i < ic->nb_chapters; i++) {
+        if (*chapters_meta == NULL) {
+            *chapters_meta = ijkmeta_create();
+            if (*chapters_meta == NULL) { return; }
+            
+            ijkmeta_set_string_l(*chapters_meta, IJKM_KEY_TYPE, IJKM_VAL_TYPE__CHAPTER);
+        }
+        
+        IjkMediaMeta *chapter = ijkmeta_create();
+        if (chapter == NULL) { continue; }
+        
+        AVChapter *avChapter = ic->chapters[i];
+        const char *title = ijkmeta_get_dictionary_string_l(avChapter->metadata, "title");
+        ijkmeta_set_string_l(chapter, IJKM_C_KEY_TITLE, title);
+        ijkmeta_set_int64_l(chapter, IJKM_C_KEY_START, avChapter->start);
+        ijkmeta_set_int64_l(chapter, IJKM_C_KEY_END, avChapter->end);
+        ijkmeta_set_int64_l(chapter, IJKM_C_KEY_ID, avChapter->id);
+        
+        ijkmeta_append_child_l(*chapters_meta, chapter);
+        chapter = NULL;
+    }
+}
+
 void ijkmeta_set_avformat_context_l(IjkMediaMeta *meta, AVFormatContext *ic)
 {
     if (!meta || !ic)

@@ -294,6 +294,16 @@ IjkMediaMeta *ijkmp_get_meta_l(IjkMediaPlayer *mp)
     return ret;
 }
 
+IjkMediaMeta *ijkmp_get_chapters_meta_l(IjkMediaPlayer *mp)
+{
+    assert(mp);
+
+    MPTRACE("%s\n", __func__);
+    IjkMediaMeta *ret = ffp_get_chapters_meta_l(mp->ffplayer);
+    MPTRACE("%s()=void\n", __func__);
+    return ret;
+}
+
 void ijkmp_shutdown_l(IjkMediaPlayer *mp)
 {
     assert(mp);

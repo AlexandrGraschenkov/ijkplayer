@@ -9,6 +9,8 @@
 #import "IJTrackMetadata.h"
 #include "ijkmedia/ijkplayer/ios/ijkplayer_ios.h"
 
+struct AVDictionary;
+
 @implementation IJTrackMetadata
 
 

@@ -3294,6 +3294,7 @@ static int read_thread(void *arg)
 
     if (!ffp->ijkmeta_delay_init) {
         ijkmeta_set_avformat_context_l(ffp->meta, ic);
+        ijkmeta_set_chapters_context_l(&ffp->chapters_meta, ic);
     }
 
     ffp->stat.bit_rate = ic->bit_rate;
@@ -3606,6 +3607,7 @@ static int read_thread(void *arg)
         if (ffp->ijkmeta_delay_init && !init_ijkmeta &&
                 (ffp->first_video_frame_rendered || !is->video_st) && (ffp->first_audio_frame_rendered || !is->audio_st)) {
             ijkmeta_set_avformat_context_l(ffp->meta, ic);
+            ijkmeta_set_chapters_context_l(&ffp->chapters_meta, ic);
             init_ijkmeta = 1;
         }
 
@@ -5040,4 +5042,12 @@ IjkMediaMeta *ffp_get_meta_l(FFPlayer *ffp)
         return NULL;
 
     return ffp->meta;
+}
+            
+IjkMediaMeta *ffp_get_chapters_meta_l(FFPlayer *ffp)
+{
+    if (!ffp)
+        return NULL;
+
+    return ffp->chapters_meta;
 }

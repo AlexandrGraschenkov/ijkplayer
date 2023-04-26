@@ -264,6 +264,10 @@
 		FA2B7531218E52B10065845C /* IJKMediaHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FA2B752F218E52B10065845C /* IJKMediaHelper.m */; };
 		FA2B7532218E52BB0065845C /* IJKMediaHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FA2B752F218E52B10065845C /* IJKMediaHelper.m */; };
 		FA2B7533218E54250065845C /* IJKMediaHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = FA2B752E218E52B10065845C /* IJKMediaHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA380C9129F3DDCA00CD5FC4 /* IJChapter.h in Headers */ = {isa = PBXBuildFile; fileRef = FA380C8F29F3DDCA00CD5FC4 /* IJChapter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA380C9229F3DDCA00CD5FC4 /* IJChapter.h in Headers */ = {isa = PBXBuildFile; fileRef = FA380C8F29F3DDCA00CD5FC4 /* IJChapter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA380C9329F3DDCA00CD5FC4 /* IJChapter.m in Sources */ = {isa = PBXBuildFile; fileRef = FA380C9029F3DDCA00CD5FC4 /* IJChapter.m */; };
+		FA380C9429F3DDCA00CD5FC4 /* IJChapter.m in Sources */ = {isa = PBXBuildFile; fileRef = FA380C9029F3DDCA00CD5FC4 /* IJChapter.m */; };
 		FA5DEBC521F9021C00E08B3A /* IJKSubtitles.h in Headers */ = {isa = PBXBuildFile; fileRef = FA5DEBC321F9021C00E08B3A /* IJKSubtitles.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FA5DEBC621F9021C00E08B3A /* IJKSubtitles.m in Sources */ = {isa = PBXBuildFile; fileRef = FA5DEBC421F9021C00E08B3A /* IJKSubtitles.m */; };
 		FA5DEBC721F9078900E08B3A /* IJKSubtitles.h in Headers */ = {isa = PBXBuildFile; fileRef = FA5DEBC321F9021C00E08B3A /* IJKSubtitles.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -482,6 +486,8 @@
 		FA1339BE21EFD8870095427F /* IJKSubtitleWriter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = IJKSubtitleWriter.m; path = IJKMediaPlayer/IJKSubtitleWriter.m; sourceTree = "<group>"; };
 		FA2B752E218E52B10065845C /* IJKMediaHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IJKMediaHelper.h; path = IJKMediaPlayer/IJKMediaHelper.h; sourceTree = "<group>"; };
 		FA2B752F218E52B10065845C /* IJKMediaHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = IJKMediaHelper.m; path = IJKMediaPlayer/IJKMediaHelper.m; sourceTree = "<group>"; };
+		FA380C8F29F3DDCA00CD5FC4 /* IJChapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IJChapter.h; sourceTree = "<group>"; };
+		FA380C9029F3DDCA00CD5FC4 /* IJChapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IJChapter.m; sourceTree = "<group>"; };
 		FA5DEBC321F9021C00E08B3A /* IJKSubtitles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IJKSubtitles.h; path = IJKMediaPlayer/IJKSubtitles.h; sourceTree = "<group>"; };
 		FA5DEBC421F9021C00E08B3A /* IJKSubtitles.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = IJKSubtitles.m; path = IJKMediaPlayer/IJKSubtitles.m; sourceTree = "<group>"; };
 		FAD6AAFE20D8627B00CB17CA /* IJTrackMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IJTrackMetadata.h; sourceTree = "<group>"; };
@@ -694,6 +700,8 @@
 				4D32BC801F906E3600CE9F03 /* IJKSDLGLViewProtocol.h */,
 				E66F8DE517EFD9C300354D80 /* IJKFFMoviePlayerController.h */,
 				E66F8DE617EFD9C300354D80 /* IJKFFMoviePlayerController.m */,
+				FA380C8F29F3DDCA00CD5FC4 /* IJChapter.h */,
+				FA380C9029F3DDCA00CD5FC4 /* IJChapter.m */,
 				FAD6AAFE20D8627B00CB17CA /* IJTrackMetadata.h */,
 				FAD6AAFF20D8627B00CB17CA /* IJTrackMetadata.m */,
 				E6F727B917F2D9D30043623F /* IJKFFMoviePlayerDef.h */,
@@ -1021,6 +1029,7 @@
 				5450B0321E63EA4300568494 /* ijktree.h in Headers */,
 				5450B0331E63EA4300568494 /* opt.h in Headers */,
 				5450B0341E63EA4300568494 /* ijkioapplication.h in Headers */,
+				FA380C9229F3DDCA00CD5FC4 /* IJChapter.h in Headers */,
 				5450B0351E63EA4300568494 /* ijkioprotocol.h in Headers */,
 				5450B0361E63EA4300568494 /* IJKMediaPlayback.h in Headers */,
 				5450B0371E63EA4300568494 /* IJKMediaPlayer.h in Headers */,
@@ -1065,6 +1074,7 @@
 				54CF8A4C1E15287D00309DD5 /* ijkfifo.h in Headers */,
 				54CF8A521E15287D00309DD5 /* ijktree.h in Headers */,
 				E69BE5571B93FED300AFBA3F /* opt.h in Headers */,
+				FA380C9129F3DDCA00CD5FC4 /* IJChapter.h in Headers */,
 				54CF8A351E1526F800309DD5 /* ijkioapplication.h in Headers */,
 				54CF8A3B1E1526F800309DD5 /* ijkioprotocol.h in Headers */,
 				E654EAE71B6B295200B0F2D0 /* IJKMediaPlayback.h in Headers */,
@@ -1313,6 +1323,7 @@
 				5450B00B1E63EA4300568494 /* IJKVideoToolBoxAsync.m in Sources */,
 				5450B00C1E63EA4300568494 /* renderer_yuv444p10le.c in Sources */,
 				5450B00D1E63EA4300568494 /* ijkstl.cpp in Sources */,
+				FA380C9429F3DDCA00CD5FC4 /* IJChapter.m in Sources */,
 				5450B00E1E63EA4300568494 /* image_convert.c in Sources */,
 				5450B00F1E63EA4300568494 /* rgb.fsh.c in Sources */,
 				5450B0101E63EA4300568494 /* ffpipenode_ios_videotoolbox_vdec.m in Sources */,
@@ -1341,6 +1352,7 @@
 				E654EAB91B6B286700B0F2D0 /* ijkplayer_ios.m in Sources */,
 				E654EAB51B6B286400B0F2D0 /* ffpipeline_ios.c in Sources */,
 				54CF8A3A1E1526F800309DD5 /* ijkioprotocol.c in Sources */,
+				FA380C9329F3DDCA00CD5FC4 /* IJChapter.m in Sources */,
 				E654EABD1B6B287000B0F2D0 /* ijksdl_vout_dummy.c in Sources */,
 				E6C459CC1C70967F004831EC /* renderer_yuv420sp.c in Sources */,
 				E6C459941C7030B6004831EC /* yuv420p.fsh.c in Sources */,

@@ -26,6 +26,7 @@
 #import "IJKFFOptions.h"
 #import "IJKSDLGLViewProtocol.h"
 #import "IJTrackMetadata.h"
+#import "IJChapter.h"
 
 // media meta
 #define k_IJKM_KEY_FORMAT         @"format"
@@ -143,6 +144,7 @@ typedef enum IJKLogLevel {
 @property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *audioTracks;
 @property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *videoTracks;
 @property (nonatomic, strong, readonly) NSArray<IJTrackMetadata *> *subtitlesTracks;
+@property (nonatomic, strong, readonly) NSArray<IJChapter *> *chapters;
 @property (nonatomic, strong, readonly) NSString *fileFormat;
 
 @property (nonatomic, strong) IJTrackMetadata *selectedAudioTrack;
