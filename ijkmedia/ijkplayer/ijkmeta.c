@@ -201,8 +201,10 @@ void ijkmeta_set_chapters_context_l(IjkMediaMeta **chapters_meta, struct AVForma
         AVChapter *avChapter = ic->chapters[i];
         const char *title = ijkmeta_get_dictionary_string_l(avChapter->metadata, "title");
         ijkmeta_set_string_l(chapter, IJKM_C_KEY_TITLE, title);
-        ijkmeta_set_int64_l(chapter, IJKM_C_KEY_START, avChapter->start);
-        ijkmeta_set_int64_l(chapter, IJKM_C_KEY_END, avChapter->end);
+        double start = ((double)avChapter->start * (double)avChapter->time_base.num * 1000.0) / (double)avChapter->time_base.den;
+        double end = ((double)avChapter->end * (double)avChapter->time_base.num * 1000.0) / (double)avChapter->time_base.den;
+        ijkmeta_set_int64_l(chapter, IJKM_C_KEY_START, round(start));
+        ijkmeta_set_int64_l(chapter, IJKM_C_KEY_END, round(end));
         ijkmeta_set_int64_l(chapter, IJKM_C_KEY_ID, avChapter->id);
         
         ijkmeta_append_child_l(*chapters_meta, chapter);
