@@ -30,6 +30,8 @@
 
 @interface IJKSDLGLView : UIView <IJKSDLGLViewProtocol>
 
+@property (nonatomic, assign) CGAffineTransform transformPoints;
+
 - (id) initWithFrame:(CGRect)frame;
 - (void) display: (SDL_VoutOverlay *) overlay;
 

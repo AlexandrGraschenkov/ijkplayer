@@ -309,7 +309,7 @@ static EGLBoolean IJK_EGL_display_internal(IJK_EGL* egl, EGLNativeWindowType win
         return EGL_FALSE;
     }
 
-    if (!IJK_GLES2_Renderer_renderOverlay(opaque->renderer, overlay)) {
+    if (!IJK_GLES2_Renderer_renderOverlay(opaque->renderer, overlay, true)) {
         ALOGE("[EGL] IJK_GLES2_render failed\n");
         return EGL_FALSE; 
     }

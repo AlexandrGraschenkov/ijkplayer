@@ -37,6 +37,7 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
 @interface IJKSDLGLView()
 @property(atomic,strong) NSRecursiveLock *glActiveLock;
 @property(atomic) BOOL glActivePaused;
+@property(atomic) BOOL isTransformInvalidated;
 @end
 
 @implementation IJKSDLGLView {
@@ -79,6 +80,8 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
 {
     self = [super initWithFrame:frame];
     if (self) {
+        self.transformPoints = CGAffineTransformIdentity;
+        self.isTransformInvalidated = false;
         _eaglLayer = [self eaglLayer];
         _tryLockErrorCount = 0;
         _shouldLockWhileBeingMovedToWindow = YES;
@@ -294,6 +297,20 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     [self invalidateRenderBuffer];
 }
 
+- (void)setTransformPoints:(CGAffineTransform)transformPoints {
+    if (CGAffineTransformEqualToTransform(_transformPoints, transformPoints)) {
+        return;
+    }
+    _transformPoints = transformPoints;
+    self.isTransformInvalidated = true;
+    
+    int64_t current = (int64_t)SDL_GetTickHR();
+    if (current - _lastFrameTime > 100) { // > 10 fps, probably video paused
+//        [self displayOnBackground:NO];
+        [self display:nil];
+    }
+}
+
 - (BOOL)setupRenderer: (SDL_VoutOverlay *) overlay
 {
     if (overlay == nil)
@@ -322,19 +339,20 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
 {
     NSLog(@"invalidateRenderBuffer\n");
     [self lockGLActive];
-
     _isRenderBufferInvalidated = YES;
+    [self unlockGLActive];
+    [self displayOnBackground:YES];
+}
 
+- (void)displayOnBackground:(BOOL)checkBufferIsInvalid {
     if ([[NSThread currentThread] isMainThread]) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            if (_isRenderBufferInvalidated)
+            if (!checkBufferIsInvalid || self->_isRenderBufferInvalidated)
                 [self display:nil];
         });
     } else {
         [self display:nil];
     }
-
-    [self unlockGLActive];
 }
 
 - (void) display_pixels: (IJKOverlay *) overlay {
@@ -368,6 +386,28 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     [self unlockGLActive];
 }
 
+- (void)updateZoomContext {
+    if (_didSetupGL == NO || !_renderer)
+        return;
+
+    if ([self isApplicationActive] == NO)
+        return;
+
+    [self lockGLActive];
+
+    if (_context && !_didStopGL) {
+        EAGLContext *prevContext = [EAGLContext currentContext];
+        [EAGLContext setCurrentContext:_context];
+        IJK_GLES2_Renderer_updateZoom(_renderer,
+                                      _transformPoints.a,
+                                      _transformPoints.tx,
+                                      _transformPoints.ty);
+        [EAGLContext setCurrentContext:prevContext];
+    }
+
+    [self unlockGLActive];
+}
+
 // NOTE: overlay could be NULl
 - (void)displayInternal: (SDL_VoutOverlay *) overlay
 {
@@ -393,10 +433,17 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
         IJK_GLES2_Renderer_setGravity(_renderer, _rendererGravity, _backingWidth, _backingHeight);
     }
 
+    bool updateRenderBuffer = true;
+    if (self.isTransformInvalidated) {
+        self.isTransformInvalidated = false;
+        CGAffineTransform t = self.transformPoints;
+        IJK_GLES2_Renderer_updateZoom(_renderer, t.a, t.tx, t.ty);
+        updateRenderBuffer = false; // нам не нужно переинициализировать все, достаточно обновить только точки
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     glViewport(0, 0, _backingWidth, _backingHeight);
 
-    if (!IJK_GLES2_Renderer_renderOverlay(_renderer, overlay))
+    if (!IJK_GLES2_Renderer_renderOverlay(_renderer, overlay, updateRenderBuffer))
         ALOGE("[EGL] IJK_GLES2_render failed\n");
 
     glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);

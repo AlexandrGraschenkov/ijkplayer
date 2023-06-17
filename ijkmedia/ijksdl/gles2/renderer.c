@@ -265,17 +265,20 @@ static void IJK_GLES2_Renderer_Vertices_apply(IJK_GLES2_Renderer *renderer)
         case IJK_GLES2_GRAVITY_RESIZE_ASPECT:       dd = FFMIN(dW, dH); break;
     }
 
-    nW = (width  * dd / (float)renderer->layer_width);
-    nH = (height * dd / (float)renderer->layer_height);
+    float scale = dd * (1.f + (float)renderer->zoomOffset);
+    nW = (width  * scale / (float)renderer->layer_width);
+    nH = (height * scale / (float)renderer->layer_height);
+    float offX = (float)renderer->offsetX;
+    float offY = (float)renderer->offsetY;
 
-    renderer->vertices[0] = - nW;
-    renderer->vertices[1] = - nH;
-    renderer->vertices[2] =   nW;
-    renderer->vertices[3] = - nH;
-    renderer->vertices[4] = - nW;
-    renderer->vertices[5] =   nH;
-    renderer->vertices[6] =   nW;
-    renderer->vertices[7] =   nH;
+    renderer->vertices[0] = - nW + offX;
+    renderer->vertices[1] = - nH + offY;
+    renderer->vertices[2] =   nW + offX;
+    renderer->vertices[3] = - nH + offY;
+    renderer->vertices[4] = - nW + offX;
+    renderer->vertices[5] =   nH + offY;
+    renderer->vertices[6] =   nW + offX;
+    renderer->vertices[7] =   nH + offY;
 }
 
 static void IJK_GLES2_Renderer_Vertices_reloadVertex(IJK_GLES2_Renderer *renderer)
@@ -366,7 +369,7 @@ GLboolean IJK_GLES2_Renderer_use(IJK_GLES2_Renderer *renderer)
 /*
  * Per-Frame routine
  */
-GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_VoutOverlay *overlay)
+GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_VoutOverlay *overlay, GLboolean updateRenderBuffer)
 {
     if (!renderer || !renderer->func_uploadTexture)
         return GL_FALSE;
@@ -395,7 +398,7 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
 
         if (!renderer->func_uploadTexture(renderer, overlay))
             return GL_FALSE;
-    } else {
+    } else if (updateRenderBuffer) {
         // NULL overlay means force reload vertice
         renderer->vertices_changed = 1;
     }
@@ -426,4 +429,13 @@ GLboolean IJK_GLES2_Renderer_renderOverlay(IJK_GLES2_Renderer *renderer, SDL_Vou
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);      IJK_GLES2_checkError_TRACE("glDrawArrays");
 
     return GL_TRUE;
+}
+
+GLboolean IJK_GLES2_Renderer_updateZoom(IJK_GLES2_Renderer *renderer, float zoom, float offsetX, float offsetY) {
+    renderer->zoomOffset = zoom - 1;
+    renderer->offsetX = offsetX;
+    renderer->offsetY = offsetY;
+    IJK_GLES2_Renderer_Vertices_apply(renderer);
+    IJK_GLES2_Renderer_Vertices_reloadVertex(renderer);
+    return true;
 }

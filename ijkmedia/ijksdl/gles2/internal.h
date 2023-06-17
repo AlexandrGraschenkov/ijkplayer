@@ -73,6 +73,10 @@ typedef struct IJK_GLES2_Renderer
     int     frame_height;
     int     frame_sar_num;
     int     frame_sar_den;
+    
+    GLfloat zoomOffset;
+    GLfloat offsetX;
+    GLfloat offsetY;
 
     GLsizei last_buffer_width;
 } IJK_GLES2_Renderer;
