@@ -21,7 +21,7 @@
 
 using namespace std;
 
-typedef unordered_map<int64_t, void *> IjkMap;
+typedef map<int64_t, void *> IjkMap;
 
 extern "C" void* ijk_map_create();
 extern "C" void ijk_map_put(void *data, int64_t key, void *value);
@@ -36,7 +36,8 @@ extern "C" void ijk_map_destroy(void *data);
 extern "C" void ijk_map_traversal_handle(void *data, void *parm, int (*enu)(void *parm, int64_t key, void *elem));
 
 void* ijk_map_create() {
-    IjkMap *data = (IjkMap *)malloc(sizeof(IjkMap)); // new IjkMap() - приводит к крешу на старых устройствах
+    IjkMap *data = new IjkMap();
+//    IjkMap *data = (IjkMap *)malloc(sizeof(IjkMap)); // new IjkMap() - приводит к крешу на старых устройствах
     return data;
 }
 
@@ -143,5 +144,6 @@ void ijk_map_destroy(void *data) {
         return;
 
     map_data->clear();
-    free(map_data);
+//    free(map_data);
+    delete(map_data);
 }
