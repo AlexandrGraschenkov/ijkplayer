@@ -98,12 +98,6 @@
 		5450B0141E63EA4300568494 /* ijklongurl.c in Sources */ = {isa = PBXBuildFile; fileRef = 54A029B31D4700E6001C61C1 /* ijklongurl.c */; };
 		5450B0151E63EA4300568494 /* renderer_rgb.c in Sources */ = {isa = PBXBuildFile; fileRef = E6C459BE1C708CAF004831EC /* renderer_rgb.c */; };
 		5450B0161E63EA4300568494 /* ffpipeline_ffplay.c in Sources */ = {isa = PBXBuildFile; fileRef = E67B91B21A3801E600717EA9 /* ffpipeline_ffplay.c */; };
-		5450B0181E63EA4300568494 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6EF1BCE5A750016835A /* libavcodec.a */; };
-		5450B0191E63EA4300568494 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F01BCE5A750016835A /* libavfilter.a */; };
-		5450B01A1E63EA4300568494 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F11BCE5A750016835A /* libavformat.a */; };
-		5450B01B1E63EA4300568494 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F21BCE5A750016835A /* libavutil.a */; };
-		5450B01C1E63EA4300568494 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F31BCE5A750016835A /* libswresample.a */; };
-		5450B01D1E63EA4300568494 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F41BCE5A750016835A /* libswscale.a */; };
 		5450B01F1E63EA4300568494 /* IJKFFMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = E6DBD3871C8941EB0058E4FB /* IJKFFMonitor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5450B0201E63EA4300568494 /* ijkiourl.h in Headers */ = {isa = PBXBuildFile; fileRef = 54CF8A321E1526F800309DD5 /* ijkiourl.h */; };
 		5450B0211E63EA4300568494 /* IJKFFMoviePlayerController.h in Headers */ = {isa = PBXBuildFile; fileRef = E66F8DE517EFD9C300354D80 /* IJKFFMoviePlayerController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -137,7 +131,6 @@
 		5450B03E1E63EA4300568494 /* NSString+IJKMedia.h in Headers */ = {isa = PBXBuildFile; fileRef = E69808991C7EB13A0048A46C /* NSString+IJKMedia.h */; };
 		5450B0451E63EAB700568494 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5450AF8B1E63E59300568494 /* libcrypto.a */; };
 		5450B0461E63EAB700568494 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5450AF8C1E63E59300568494 /* libssl.a */; };
-		5450B0471E63EABC00568494 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5450AF8F1E63E59800568494 /* libz.tbd */; };
 		549385C41E640456001AE08D /* IJKMediaFrameworkWithSSL.h in Headers */ = {isa = PBXBuildFile; fileRef = 5450AF9B1E63E65700568494 /* IJKMediaFrameworkWithSSL.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		54A029B61D4700E6001C61C1 /* ijkasync.c in Sources */ = {isa = PBXBuildFile; fileRef = 54A029B11D4700E6001C61C1 /* ijkasync.c */; };
 		54A029B71D4700E6001C61C1 /* ijkavformat.h in Headers */ = {isa = PBXBuildFile; fileRef = 54A029B21D4700E6001C61C1 /* ijkavformat.h */; };
@@ -276,6 +269,16 @@
 		FAD6AB0120D8627B00CB17CA /* IJTrackMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD6AAFF20D8627B00CB17CA /* IJTrackMetadata.m */; };
 		FAD6AB0220D8E9B500CB17CA /* IJTrackMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD6AAFE20D8627B00CB17CA /* IJTrackMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FAD6AB0320D8E9B500CB17CA /* IJTrackMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD6AAFF20D8627B00CB17CA /* IJTrackMetadata.m */; };
+		FAF6C6E52BE1283D00A12CF3 /* IJKSubtitles.m in Sources */ = {isa = PBXBuildFile; fileRef = FA5DEBC421F9021C00E08B3A /* IJKSubtitles.m */; };
+		FAF6C6E62BE1284100A12CF3 /* IJKSubtitleWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1339BE21EFD8870095427F /* IJKSubtitleWriter.m */; };
+		FAF6C6F62BE12BBA00A12CF3 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FAF6C6F52BE12BAE00A12CF3 /* libbz2.tbd */; };
+		FAF6C6F92BE12C3100A12CF3 /* libz.1.2.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FAF6C6F82BE12C2900A12CF3 /* libz.1.2.8.tbd */; };
+		FAF6C7282BE5517E00A12CF3 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6EF1BCE5A750016835A /* libavcodec.a */; };
+		FAF6C7292BE5517E00A12CF3 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F11BCE5A750016835A /* libavformat.a */; };
+		FAF6C72A2BE5517E00A12CF3 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F01BCE5A750016835A /* libavfilter.a */; };
+		FAF6C72B2BE5517E00A12CF3 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F41BCE5A750016835A /* libswscale.a */; };
+		FAF6C72C2BE5517E00A12CF3 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F21BCE5A750016835A /* libavutil.a */; };
+		FAF6C72D2BE5517E00A12CF3 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E653C6F31BCE5A750016835A /* libswresample.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -492,6 +495,17 @@
 		FA5DEBC421F9021C00E08B3A /* IJKSubtitles.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = IJKSubtitles.m; path = IJKMediaPlayer/IJKSubtitles.m; sourceTree = "<group>"; };
 		FAD6AAFE20D8627B00CB17CA /* IJTrackMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IJTrackMetadata.h; sourceTree = "<group>"; };
 		FAD6AAFF20D8627B00CB17CA /* IJTrackMetadata.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IJTrackMetadata.m; sourceTree = "<group>"; };
+		FAF6C6F52BE12BAE00A12CF3 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk/usr/lib/libbz2.tbd; sourceTree = DEVELOPER_DIR; };
+		FAF6C6F72BE12C0B00A12CF3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		FAF6C6F82BE12C2900A12CF3 /* libz.1.2.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.8.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk/usr/lib/libz.1.2.8.tbd; sourceTree = DEVELOPER_DIR; };
+		FAF6C7072BE54E2800A12CF3 /* ffmpegkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ffmpegkit.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/ffmpegkit.xcframework"; sourceTree = "<group>"; };
+		FAF6C70E2BE54FA600A12CF3 /* libavdevice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavdevice.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/libavdevice.xcframework"; sourceTree = "<group>"; };
+		FAF6C7162BE5513100A12CF3 /* libavcodec.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavcodec.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/libavcodec.xcframework"; sourceTree = "<group>"; };
+		FAF6C7172BE5513100A12CF3 /* libswresample.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libswresample.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/libswresample.xcframework"; sourceTree = "<group>"; };
+		FAF6C7182BE5513100A12CF3 /* libswscale.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libswscale.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/libswscale.xcframework"; sourceTree = "<group>"; };
+		FAF6C7192BE5513100A12CF3 /* libavfilter.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavfilter.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/libavfilter.xcframework"; sourceTree = "<group>"; };
+		FAF6C71A2BE5513100A12CF3 /* libavformat.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavformat.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/libavformat.xcframework"; sourceTree = "<group>"; };
+		FAF6C71B2BE5513200A12CF3 /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavutil.xcframework; path = "../../../../../../Downloads/ffmpeg-kit-test-main/ios/test-app-cocoapods/Pods/ffmpeg-kit-ios-full/libavutil.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -499,15 +513,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5450B0471E63EABC00568494 /* libz.tbd in Frameworks */,
+				FAF6C72C2BE5517E00A12CF3 /* libavutil.a in Frameworks */,
+				FAF6C6F62BE12BBA00A12CF3 /* libbz2.tbd in Frameworks */,
 				5450B0451E63EAB700568494 /* libcrypto.a in Frameworks */,
+				FAF6C7282BE5517E00A12CF3 /* libavcodec.a in Frameworks */,
+				FAF6C72A2BE5517E00A12CF3 /* libavfilter.a in Frameworks */,
+				FAF6C72B2BE5517E00A12CF3 /* libswscale.a in Frameworks */,
+				FAF6C72D2BE5517E00A12CF3 /* libswresample.a in Frameworks */,
+				FAF6C7292BE5517E00A12CF3 /* libavformat.a in Frameworks */,
+				FAF6C6F92BE12C3100A12CF3 /* libz.1.2.8.tbd in Frameworks */,
 				5450B0461E63EAB700568494 /* libssl.a in Frameworks */,
-				5450B0181E63EA4300568494 /* libavcodec.a in Frameworks */,
-				5450B0191E63EA4300568494 /* libavfilter.a in Frameworks */,
-				5450B01A1E63EA4300568494 /* libavformat.a in Frameworks */,
-				5450B01B1E63EA4300568494 /* libavutil.a in Frameworks */,
-				5450B01C1E63EA4300568494 /* libswresample.a in Frameworks */,
-				5450B01D1E63EA4300568494 /* libswscale.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -684,6 +699,17 @@
 		E6903EBB17EAF6C500CFD954 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FAF6C7162BE5513100A12CF3 /* libavcodec.xcframework */,
+				FAF6C7192BE5513100A12CF3 /* libavfilter.xcframework */,
+				FAF6C71A2BE5513100A12CF3 /* libavformat.xcframework */,
+				FAF6C71B2BE5513200A12CF3 /* libavutil.xcframework */,
+				FAF6C7172BE5513100A12CF3 /* libswresample.xcframework */,
+				FAF6C7182BE5513100A12CF3 /* libswscale.xcframework */,
+				FAF6C70E2BE54FA600A12CF3 /* libavdevice.xcframework */,
+				FAF6C7072BE54E2800A12CF3 /* ffmpegkit.xcframework */,
+				FAF6C6F82BE12C2900A12CF3 /* libz.1.2.8.tbd */,
+				FAF6C6F72BE12C0B00A12CF3 /* libz.tbd */,
+				FAF6C6F52BE12BAE00A12CF3 /* libbz2.tbd */,
 				5450AF8F1E63E59800568494 /* libz.tbd */,
 				5450AF8B1E63E59300568494 /* libcrypto.a */,
 				5450AF8C1E63E59300568494 /* libssl.a */,
@@ -1257,6 +1283,7 @@
 				5450AFCC1E63EA4300568494 /* IJKFFMoviePlayerDef.m in Sources */,
 				5450AFCD1E63EA4300568494 /* ijkplayer_ios.m in Sources */,
 				5450AFCE1E63EA4300568494 /* ffpipeline_ios.c in Sources */,
+				FAF6C6E62BE1284100A12CF3 /* IJKSubtitleWriter.m in Sources */,
 				5450AFCF1E63EA4300568494 /* ijkioprotocol.c in Sources */,
 				5450AFD01E63EA4300568494 /* ijksdl_vout_dummy.c in Sources */,
 				5450AFD11E63EA4300568494 /* renderer_yuv420sp.c in Sources */,
@@ -1332,6 +1359,7 @@
 				5450B0131E63EA4300568494 /* ijksdl_vout_ios_gles2.m in Sources */,
 				5450B0141E63EA4300568494 /* ijklongurl.c in Sources */,
 				5450B0151E63EA4300568494 /* renderer_rgb.c in Sources */,
+				FAF6C6E52BE1283D00A12CF3 /* IJKSubtitles.m in Sources */,
 				5450B0161E63EA4300568494 /* ffpipeline_ffplay.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1458,9 +1486,7 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 0.8.8;
-				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1485,14 +1511,15 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/IJKMediaFrameworkWithSSL.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../build/universal/lib\"",
 				);
-				MACH_O_TYPE = mh_dylib;
+				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-read_only_relocs",
 					suppress,
@@ -1513,7 +1540,6 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 0.8.8;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1536,13 +1562,13 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/IJKMediaFrameworkWithSSL.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../build/universal/lib\"",
 				);
-				MACH_O_TYPE = mh_dylib;
+				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
 					"-read_only_relocs",
@@ -1589,7 +1615,7 @@
 				);
 				INFOPLIST_FILE = IJKMediaFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1597,6 +1623,7 @@
 				);
 				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "tv.danmaku.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1635,7 +1662,7 @@
 				);
 				INFOPLIST_FILE = IJKMediaFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

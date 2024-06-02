@@ -91,7 +91,7 @@ void fillTime(char *str, int64_t time) {
 @implementation IJKSubtitleWriter
 
 + (NSString *)subtitleName:(NSString *)title track:(int)trackIdx subIdx:(int)subIdx lang:(NSString *)lang {
-    return [NSString stringWithFormat:@"subtitle|#%d#|%@|{%d}|<%@>.srt",trackIdx,title?:@"",subIdx, lang ?: @""];
+    return [NSString stringWithFormat:@"subtitle|#%d#|%@|{%d}|<%@>|•v•.srt",trackIdx,title?:@"",subIdx, lang ?: @""];
 }
 
 + (instancetype)writerFile:(NSString*)savePath trackIdx:(int)track {
