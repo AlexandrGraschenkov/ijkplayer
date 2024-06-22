@@ -854,9 +854,9 @@ inline static NSString *formatedSpeed(int64_t bytes, int64_t elapsed_milli) {
 
     float bytes_per_sec = ((float)bytes) * 1000.f /  elapsed_milli;
     if (bytes_per_sec >= 1000 * 1000) {
-        return [NSString stringWithFormat:@"%.2f MB/s", ((float)bytes_per_sec) / 1000 / 1000];
+        return [NSString stringWithFormat:@"%.2f mB/s", ((float)bytes_per_sec) / 1000 / 1000];
     } else if (bytes_per_sec >= 1000) {
-        return [NSString stringWithFormat:@"%.1f KB/s", ((float)bytes_per_sec) / 1000];
+        return [NSString stringWithFormat:@"%.1f kB/s", ((float)bytes_per_sec) / 1000];
     } else {
         return [NSString stringWithFormat:@"%ld B/s", (long)bytes_per_sec];
     }

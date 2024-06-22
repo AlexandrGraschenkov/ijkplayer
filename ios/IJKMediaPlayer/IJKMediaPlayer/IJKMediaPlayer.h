@@ -32,3 +32,4 @@
 #import "IJKMediaModule.h"
 
 #import "IJKMediaHelper.h"
+#import "IJKMediaStreamDownloader.h"
