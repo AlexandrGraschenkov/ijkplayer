@@ -79,8 +79,8 @@
 
 + (int)downloadVideoStream_new:(NSURL*)url toLocation:(NSURL*)location {
     
-    const char *inputUrl = [[url absoluteString] cStringUsingEncoding:kCFStringEncodingUTF8];
-    const char *outputFilename = [[location absoluteString] cStringUsingEncoding:kCFStringEncodingUTF8];
+    const char *inputUrl = [[url absoluteString] cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *outputFilename = [[location absoluteString] cStringUsingEncoding:NSUTF8StringEncoding];
     
     avformat_network_init();
     av_register_all();
@@ -335,8 +335,8 @@ bool selectTracks(AVFormatContext *ctx, FilterTracksClosure filterClosure, int *
     int *stream_mapping = NULL;
     int stream_mapping_size = 0;
 
-    in_filename  = [[url absoluteString] cStringUsingEncoding:kCFStringEncodingUTF8];
-    out_filename = [[location path] cStringUsingEncoding:kCFStringEncodingUTF8];
+    in_filename  = [[url absoluteString] cStringUsingEncoding:NSUTF8StringEncoding];
+    out_filename = [[location path] cStringUsingEncoding:NSUTF8StringEncoding];
 
     if ((ret = avformat_open_input(&ifmt_ctx, in_filename, 0, 0)) < 0) {
         fprintf(stderr, "Could not open input file '%s'", in_filename);
@@ -600,8 +600,8 @@ end:
     int ret, i;
     double tt1 = CACurrentMediaTime();
     
-    char *inputUrl = [[url absoluteString] cStringUsingEncoding:kCFStringEncodingUTF8];
-    char *outputFilename = [[location path] cStringUsingEncoding:kCFStringEncodingUTF8];
+    char *inputUrl = [[url absoluteString] cStringUsingEncoding:NSUTF8StringEncoding];
+    char *outputFilename = [[location path] cStringUsingEncoding:NSUTF8StringEncoding];
     ffmpeg_remux(inputUrl, outputFilename);
     
     double tt2 = CACurrentMediaTime();
