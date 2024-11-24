@@ -307,7 +307,7 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     int64_t current = (int64_t)SDL_GetTickHR();
     if (current - _lastFrameTime > 100) { // > 10 fps, probably video paused
 //        [self displayOnBackground:NO];
-        [self display:nil];
+        [self display:nil checkAppState:YES];
     }
 }
 
@@ -346,12 +346,13 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
 
 - (void)displayOnBackground:(BOOL)checkBufferIsInvalid {
     if ([[NSThread currentThread] isMainThread]) {
+        if ([self isApplicationActive] == NO) return;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             if (!checkBufferIsInvalid || self->_isRenderBufferInvalidated)
-                [self display:nil];
+                [self display:nil checkAppState:NO];
         });
     } else {
-        [self display:nil];
+        [self display:nil checkAppState:YES];
     }
 }
 
@@ -359,12 +360,12 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     return;
 }
 
-- (void)display: (SDL_VoutOverlay *) overlay
+- (void)display:(SDL_VoutOverlay *)overlay checkAppState:(BOOL)checkAppState
 {
     if (_didSetupGL == NO)
         return;
 
-    if ([self isApplicationActive] == NO)
+    if (checkAppState && [self isApplicationActive] == NO)
         return;
 
     if (![self tryLockGLActive]) {

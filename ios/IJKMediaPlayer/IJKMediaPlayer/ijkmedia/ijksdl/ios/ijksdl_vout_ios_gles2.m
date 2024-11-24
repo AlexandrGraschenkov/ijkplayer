@@ -113,7 +113,7 @@ static int vout_display_overlay_l(SDL_Vout *vout, SDL_VoutOverlay *overlay)
              [gl_view display_pixels:&ijk_overlay];
         }
     } else {
-        [gl_view display:overlay];
+        [gl_view display:overlay checkAppState:true];
     }
     return 0;
 }

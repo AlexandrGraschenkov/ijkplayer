@@ -238,24 +238,6 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
         _glView = [[IJKSDLGLView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         _glView.isThirdGLView = NO;
         _view = _glView;
-        _hudViewController = [[IJKSDLHudViewController alloc] init];
-        [_hudViewController setRect:_glView.frame];
-        _shouldShowHudView = NO;
-        _hudViewController.tableView.hidden = YES;
-        [_view addSubview:_hudViewController.tableView];
-
-        [self setHudValue:nil forKey:@"scheme"];
-        [self setHudValue:nil forKey:@"host"];
-        [self setHudValue:nil forKey:@"path"];
-        [self setHudValue:nil forKey:@"ip"];
-        [self setHudValue:nil forKey:@"tcp-info"];
-        [self setHudValue:nil forKey:@"http"];
-        [self setHudValue:nil forKey:@"tcp-spd"];
-        [self setHudValue:nil forKey:@"t-prepared"];
-        [self setHudValue:nil forKey:@"t-render"];
-        [self setHudValue:nil forKey:@"t-preroll"];
-        [self setHudValue:nil forKey:@"t-http-open"];
-        [self setHudValue:nil forKey:@"t-http-seek"];
         
         self.shouldShowHudView = options.showHudView;
 
@@ -943,6 +925,27 @@ inline static NSString *formatedSpeed(int64_t bytes, int64_t elapsed_milli) {
                   forKey:@"t-http-seek"];
 }
 
+- (void)setupHud {
+    _hudViewController = [[IJKSDLHudViewController alloc] init];
+    [_hudViewController setRect:_glView.frame];
+    _shouldShowHudView = NO;
+    _hudViewController.tableView.hidden = YES;
+    [_view addSubview:_hudViewController.tableView];
+
+    [self setHudValue:nil forKey:@"scheme"];
+    [self setHudValue:nil forKey:@"host"];
+    [self setHudValue:nil forKey:@"path"];
+    [self setHudValue:nil forKey:@"ip"];
+    [self setHudValue:nil forKey:@"tcp-info"];
+    [self setHudValue:nil forKey:@"http"];
+    [self setHudValue:nil forKey:@"tcp-spd"];
+    [self setHudValue:nil forKey:@"t-prepared"];
+    [self setHudValue:nil forKey:@"t-render"];
+    [self setHudValue:nil forKey:@"t-preroll"];
+    [self setHudValue:nil forKey:@"t-http-open"];
+    [self setHudValue:nil forKey:@"t-http-seek"];
+}
+
 - (void)startHudTimer
 {
     if (!_shouldShowHudView)
@@ -952,6 +955,10 @@ inline static NSString *formatedSpeed(int64_t bytes, int64_t elapsed_milli) {
         return;
 
     if ([[NSThread currentThread] isMainThread]) {
+        if (_hudViewController == NULL) {
+            [self setupHud];
+        }
+        
         _hudViewController.tableView.hidden = NO;
         _hudTimer = [NSTimer scheduledTimerWithTimeInterval:.5f
                                                      target:self

@@ -33,7 +33,7 @@
 @property (nonatomic, assign) CGAffineTransform transformPoints;
 
 - (id) initWithFrame:(CGRect)frame;
-- (void) display: (SDL_VoutOverlay *) overlay;
+- (void)display:(SDL_VoutOverlay *)overlay checkAppState:(BOOL)checkAppState;
 
 - (UIImage*) snapshot;
 - (void)setShouldLockWhileBeingMovedToWindow:(BOOL)shouldLockWhiteBeingMovedToWindow __attribute__((deprecated("unused")));
