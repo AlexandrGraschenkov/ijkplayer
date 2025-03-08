@@ -33,6 +33,7 @@
 #import "NSString+IJKMedia.h"
 #import "ijkioapplication.h"
 #include "string.h"
+#include "debug_whisper_callback.h"
 
 static const char *kIJKFFRequiredFFmpegVersion = "ff3.4--ijk0.8.7--20180103--001";
 
@@ -260,8 +261,25 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
 
         _notificationManager = [[IJKNotificationManager alloc] init];
         [self registerApplicationObservers];
+        
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            ijkmp_ios_whisper_callback(self->_mediaPlayer, media_player_whisper_callback, (__bridge_retained void *) self);
+//        });
     }
     return self;
+}
+
+static void code_block_callback(const uint8_t *data, int size, void *user_data) {
+    void (^block)(const uint8_t *data, int size) = (__bridge void (^)(const uint8_t *, int))(user_data);
+    block(data, size);
+}
+
+- (void)addCustomAudioProcess:(void (^)(const uint8_t *data, int size))callback {
+    ijkmp_ios_whisper_callback(self->_mediaPlayer, code_block_callback, (__bridge void *)(callback));
+}
+
+- (void)addCustomAudioProcess2:(void (*)(const uint8_t *data, int size, void * user_data))callback object:(id)object {
+    ijkmp_ios_whisper_callback(self->_mediaPlayer, callback, (__bridge void *)(object));
 }
 
 - (id)initWithMoreContent:(NSURL *)aUrl
@@ -1425,6 +1443,11 @@ inline static void fillMetaInternal(NSMutableDictionary *meta, IjkMediaMeta *raw
              postNotificationName:IJKMPMoviePlayerSeekAudioStartNotification
              object:self];
             _isAudioSync = 0;
+            break;
+        }
+        case FFP_MSG_TIMED_TEXT: {
+            NSString *str = [NSString stringWithCString:avmsg->obj encoding:NSUTF8StringEncoding];
+            NSLog(@"•• Subtitles update: %@", str);
             break;
         }
         default:

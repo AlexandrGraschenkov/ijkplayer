@@ -91,3 +91,12 @@ bool ijkmp_ios_is_videotoolbox_open(IjkMediaPlayer *mp)
     MPTRACE("%s()=%d\n", __func__, ret ? 1 : 0);
     return ret;
 }
+
+void ijkmp_ios_whisper_callback(IjkMediaPlayer *mp, void (*callback)(const uint8_t *data, int size, void *user_data), void *user_data) {
+    pthread_mutex_lock(&mp->mutex);
+    if (mp->ffplayer && mp->ffplayer->is) {
+        mp->ffplayer->is->whisper_callback_user_data = user_data;
+        mp->ffplayer->is->whisper_callback = callback;
+    }
+    pthread_mutex_unlock(&mp->mutex);
+}

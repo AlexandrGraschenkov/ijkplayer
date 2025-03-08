@@ -272,6 +272,8 @@ typedef struct Decoder {
     int    first_frame_decoded;
 } Decoder;
 
+typedef void (*WhisperAudioDataCallback)(const uint8_t *data, int size, void *user_data);
+
 typedef struct VideoState {
     SDL_Thread *read_tid;
     SDL_Thread _read_tid;
@@ -335,6 +337,13 @@ typedef struct VideoState {
     int frame_drops_early;
     int frame_drops_late;
     int continuous_frame_drops_early;
+    
+    WhisperAudioDataCallback whisper_callback;
+    void *whisper_callback_user_data;
+    struct SwrContext *whisper_swr_ctx;
+    uint8_t *whisper_audio_buf;
+    unsigned int whisper_audio_buf_size;
+    int whisper_audio_buf_index;
 
     enum ShowMode {
         SHOW_MODE_NONE = -1, SHOW_MODE_VIDEO = 0, SHOW_MODE_WAVES, SHOW_MODE_RDFT, SHOW_MODE_NB

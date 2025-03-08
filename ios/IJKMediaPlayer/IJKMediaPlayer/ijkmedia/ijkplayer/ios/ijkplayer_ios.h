@@ -29,3 +29,4 @@ IjkMediaPlayer *ijkmp_ios_create(int (*msg_loop)(void*));
 
 void            ijkmp_ios_set_glview(IjkMediaPlayer *mp, IJKSDLGLView *glView);
 bool            ijkmp_ios_is_videotoolbox_open(IjkMediaPlayer *mp);
+void            ijkmp_ios_whisper_callback(IjkMediaPlayer *mp, void (*callback)(const uint8_t *data, int size, void *user_data), void *user_data);

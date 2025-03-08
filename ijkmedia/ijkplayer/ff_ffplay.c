@@ -102,6 +102,7 @@
 #define FFP_IO_STAT_STEP (50 * 1024)
 
 #define FFP_BUF_MSG_PERIOD (3)
+#define WHISPER_WAVE_SAMPLE_RATE    16000
 
 // static const AVOption ffp_context_options[] = ...
 #include "ff_ffplay_options.h"
@@ -952,6 +953,10 @@ static void stream_component_close(FFPlayer *ffp, int stream_index)
         av_freep(&is->audio_buf1);
         is->audio_buf1_size = 0;
         is->audio_buf = NULL;
+        
+        swr_free(&is->whisper_swr_ctx);
+        av_freep(&is->whisper_audio_buf);
+        is->whisper_audio_buf_size = 0;
 
 #ifdef FFP_MERGE
         if (is->rdft) {
@@ -2451,6 +2456,69 @@ static int synchronize_audio(VideoState *is, int nb_samples)
     return wanted_nb_samples;
 }
 
+static void whisper_audio_decode_frame(FFPlayer *ffp, Frame *af, int64_t dec_channel_layout) {
+    VideoState *is = ffp->is;
+    if (!is->whisper_swr_ctx) {
+        is->whisper_swr_ctx = swr_alloc();
+        
+        struct SwrContext *swr = is->whisper_swr_ctx;
+        av_opt_set_int(swr, "in_channel_count", af->frame->channels, 0);
+        av_opt_set_int(swr, "out_channel_count", 1, 0);
+        av_opt_set_int(swr, "in_channel_layout", af->frame->channel_layout, 0);
+        av_opt_set_int(swr, "out_channel_layout", AV_CH_LAYOUT_MONO, 0);
+        av_opt_set_int(swr, "in_sample_rate", af->frame->sample_rate, 0);
+        av_opt_set_int(swr, "out_sample_rate", WHISPER_WAVE_SAMPLE_RATE, 0);
+        av_opt_set_sample_fmt(swr, "in_sample_fmt", af->frame->format, 0);
+        av_opt_set_sample_fmt(swr, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+        
+        swr_init(swr);
+    }
+    
+    if (!swr_is_initialized(is->whisper_swr_ctx)) {
+        av_log(NULL, AV_LOG_ERROR, "Resampler has not been properly initialized\n");
+        return;
+    }
+    
+    
+    // Calculate the number of output samples
+//    int nb_samples_in = swr_get_delay(is->whisper_swr_ctx, af->frame->sample_rate) + af->frame->nb_samples;
+    int nb_samples_in = af->frame->nb_samples;
+    int out_samples = av_rescale_rnd(
+        nb_samples_in,
+        WHISPER_WAVE_SAMPLE_RATE,
+        af->frame->sample_rate,
+        AV_ROUND_UP
+    );
+    
+    // Calculate the required buffer size
+    int out_size = av_samples_get_buffer_size(NULL, 1, out_samples, AV_SAMPLE_FMT_S16, 0);
+    
+    // Ensure the buffer is large enough
+    if (out_size > is->whisper_audio_buf_size) {
+        av_fast_malloc(&is->whisper_audio_buf, &is->whisper_audio_buf_size, out_size);
+        if (!is->whisper_audio_buf) {
+            av_log(NULL, AV_LOG_ERROR, "Could not allocate audio buffer\n");
+            return;
+        }
+    }
+    
+    // Resample the audio data
+    uint8_t *out[] = { is->whisper_audio_buf };
+    int len2 = swr_convert(is->whisper_swr_ctx, out, out_samples, (const uint8_t **)af->frame->extended_data, af->frame->nb_samples);
+    if (len2 < 0) {
+        av_log(NULL, AV_LOG_ERROR, "swr_convert() failed\n");
+        return;
+    }
+    
+    // Calculate the actual size of the resampled data
+    int resampled_data_size = len2 * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+    
+    // Notify the callback with the resampled data
+    if (is->whisper_callback) {
+        is->whisper_callback(is->whisper_audio_buf, resampled_data_size, is->whisper_callback_user_data);
+    }
+}
+    
 /**
  * Decode one audio frame and return its uncompressed size.
  *
@@ -2626,6 +2694,9 @@ reload:
         ffp_notify_msg1(ffp, FFP_MSG_AUDIO_DECODED_START);
         is->auddec.first_frame_decoded_time = SDL_GetTickHR();
         is->auddec.first_frame_decoded = 1;
+    }
+    if (is->whisper_callback) {
+        whisper_audio_decode_frame(ffp, af, dec_channel_layout);
     }
     return resampled_data_size;
 }
@@ -3600,6 +3671,9 @@ static int read_thread(void *arg)
             packet_queue_put(&is->subtitleq, pkt);
         } else {
             av_packet_unref(pkt);
+        }
+        if (!pkt_in_play_range) {
+            av_log(NULL, AV_LOG_FATAL, "Not in play range\n");
         }
 
         ffp_statistic_l(ffp);

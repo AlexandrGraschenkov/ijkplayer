@@ -99,6 +99,9 @@ typedef enum IJKLogLevel {
 - (float)dropFrameRate;
 - (void)seekTo:(NSTimeInterval)aCurrentPlaybackTime tolerance:(NSTimeInterval)tolerance;
 
+- (void)addCustomAudioProcess:(void (^)(const uint8_t *data, int size))callback;
+- (void)addCustomAudioProcess2:(void (*)(const uint8_t *data, int size, void * user_data))callback object:(id)object;
+
 - (void)setPauseInBackground:(BOOL)pause;
 - (BOOL)isVideoToolboxOpen;
 

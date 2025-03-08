@@ -273,6 +273,10 @@
 		FAD6AB0120D8627B00CB17CA /* IJTrackMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD6AAFF20D8627B00CB17CA /* IJTrackMetadata.m */; };
 		FAD6AB0220D8E9B500CB17CA /* IJTrackMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = FAD6AAFE20D8627B00CB17CA /* IJTrackMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FAD6AB0320D8E9B500CB17CA /* IJTrackMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = FAD6AAFF20D8627B00CB17CA /* IJTrackMetadata.m */; };
+		FADC84512D5609C8004C31B6 /* debug_whisper_callback.c in Sources */ = {isa = PBXBuildFile; fileRef = FADC84502D5609C8004C31B6 /* debug_whisper_callback.c */; };
+		FADC84522D5609C8004C31B6 /* debug_whisper_callback.c in Sources */ = {isa = PBXBuildFile; fileRef = FADC84502D5609C8004C31B6 /* debug_whisper_callback.c */; };
+		FADC84542D560AE1004C31B6 /* debug_whisper_callback.h in Headers */ = {isa = PBXBuildFile; fileRef = FADC84532D560AE1004C31B6 /* debug_whisper_callback.h */; };
+		FADC84552D560AE1004C31B6 /* debug_whisper_callback.h in Headers */ = {isa = PBXBuildFile; fileRef = FADC84532D560AE1004C31B6 /* debug_whisper_callback.h */; };
 		FAF6C6E52BE1283D00A12CF3 /* IJKSubtitles.m in Sources */ = {isa = PBXBuildFile; fileRef = FA5DEBC421F9021C00E08B3A /* IJKSubtitles.m */; };
 		FAF6C6E62BE1284100A12CF3 /* IJKSubtitleWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1339BE21EFD8870095427F /* IJKSubtitleWriter.m */; };
 		FAF6C6F62BE12BBA00A12CF3 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FAF6C6F52BE12BAE00A12CF3 /* libbz2.tbd */; };
@@ -732,6 +736,8 @@
 				4D32BC801F906E3600CE9F03 /* IJKSDLGLViewProtocol.h */,
 				E66F8DE517EFD9C300354D80 /* IJKFFMoviePlayerController.h */,
 				E66F8DE617EFD9C300354D80 /* IJKFFMoviePlayerController.m */,
+				FADC84502D5609C8004C31B6 /* debug_whisper_callback.c */,
+				FADC84532D560AE1004C31B6 /* debug_whisper_callback.h */,
 				FA380C8F29F3DDCA00CD5FC4 /* IJChapter.h */,
 				FA380C9029F3DDCA00CD5FC4 /* IJChapter.m */,
 				FAD6AAFE20D8627B00CB17CA /* IJTrackMetadata.h */,
@@ -1077,6 +1083,7 @@
 				5450B03C1E63EA4300568494 /* IJKSDLHudViewCell.h in Headers */,
 				5450B03D1E63EA4300568494 /* IJKVideoToolBox.h in Headers */,
 				5450B03E1E63EA4300568494 /* NSString+IJKMedia.h in Headers */,
+				FADC84552D560AE1004C31B6 /* debug_whisper_callback.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1123,6 +1130,7 @@
 				E68B7ACF1C1E97B0001DE241 /* IJKSDLHudViewCell.h in Headers */,
 				5407EC291DF7F93B00457BFE /* IJKVideoToolBox.h in Headers */,
 				E698089B1C7EB13A0048A46C /* NSString+IJKMedia.h in Headers */,
+				FADC84542D560AE1004C31B6 /* debug_whisper_callback.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1286,6 +1294,7 @@
 				5450AFC41E63EA4300568494 /* IJKKVOController.m in Sources */,
 				5450AFC51E63EA4300568494 /* ijksdl_vout.c in Sources */,
 				5450AFC61E63EA4300568494 /* yuv444p10le.fsh.c in Sources */,
+				FADC84512D5609C8004C31B6 /* debug_whisper_callback.c in Sources */,
 				5450AFC71E63EA4300568494 /* allformats.c in Sources */,
 				5450AFC81E63EA4300568494 /* ffpipenode_ffplay_vdec.c in Sources */,
 				5450AFC91E63EA4300568494 /* renderer_yuv420p.c in Sources */,
@@ -1383,6 +1392,7 @@
 				E654EAA71B6B283700B0F2D0 /* IJKKVOController.m in Sources */,
 				E654EAC71B6B287E00B0F2D0 /* ijksdl_vout.c in Sources */,
 				E6C459951C7030B6004831EC /* yuv444p10le.fsh.c in Sources */,
+				FADC84522D5609C8004C31B6 /* debug_whisper_callback.c in Sources */,
 				E69BE5511B93FED300AFBA3F /* allformats.c in Sources */,
 				E654EABB1B6B286B00B0F2D0 /* ffpipenode_ffplay_vdec.c in Sources */,
 				E6C459981C7030B6004831EC /* renderer_yuv420p.c in Sources */,
