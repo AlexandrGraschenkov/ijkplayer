@@ -116,6 +116,11 @@ elif [ "$FF_ARCH" = "arm64" ]; then
     FF_XCODE_BITCODE="-fembed-bitcode"
     OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS_ARM $OPENSSL_CFG_FLAGS"
     FF_GASPP_EXPORT="GASPP_FIX_XCODE5=1"
+elif [ "$FF_ARCH" = "arm64-simulator" ]; then
+    FF_BUILD_NAME="openssl-arm64-simulator"
+    FF_XCRUN_PLATFORM="iPhoneSimulator"
+    FF_XCRUN_OSVERSION="-mios-simulator-version-min=13.0"
+    OPENSSL_CFG_FLAGS="darwin64-arm64-cc $OPENSSL_CFG_FLAGS"
 else
     echo "unknown architecture $FF_ARCH";
     exit 1

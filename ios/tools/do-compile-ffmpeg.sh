@@ -156,6 +156,17 @@ elif [ "$FF_ARCH" = "arm64" ]; then
     FF_XCODE_BITCODE="-fembed-bitcode"
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS $FFMPEG_CFG_FLAGS_ARM"
     FF_GASPP_EXPORT="GASPP_FIX_XCODE5=1"
+elif [ "$FF_ARCH" = "arm64-simulator" ]; then
+    FF_BUILD_NAME="ffmpeg-arm64-simulator"
+    FF_BUILD_NAME_OPENSSL=openssl-arm64-simulator
+    FF_XCRUN_PLATFORM="iPhoneSimulator"
+    FF_XCRUN_OSVERSION="-mios-simulator-version-min=13.0"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS $FFMPEG_CFG_FLAGS_SIMULATOR"
+    # Simulator doesn't need bitcode
+    FF_XCODE_BITCODE="-fembed-bitcode"
+    # Use specific target for simulator
+    # FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --target-os=darwin"
+    # FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-asm"
 else
     echo "unknown architecture $FF_ARCH";
     exit 1

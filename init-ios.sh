@@ -42,7 +42,7 @@ TOOLS=tools
 FF_ALL_ARCHS_IOS6_SDK="armv7 armv7s i386"
 FF_ALL_ARCHS_IOS7_SDK="armv7 armv7s arm64 i386 x86_64"
 FF_ALL_ARCHS_IOS8_SDK="armv7 arm64 i386 x86_64"
-FF_ALL_ARCHS_IOS13_SDK="arm64 x86_64"
+FF_ALL_ARCHS_IOS13_SDK="arm64 x86_64 arm64-simulator"
 FF_ALL_ARCHS=$FF_ALL_ARCHS_IOS13_SDK
 FF_TARGET=$1
 
@@ -83,7 +83,7 @@ case "$FF_TARGET" in
     ffmpeg-version)
         echo_ffmpeg_version
     ;;
-    armv7|armv7s|arm64|i386|x86_64)
+    armv7|armv7s|arm64|arm64-simulator|i386|x86_64)
         pull_common
         pull_fork $FF_TARGET
     ;;
