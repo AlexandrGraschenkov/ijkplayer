@@ -99,7 +99,9 @@ static int vout_display_overlay_l(SDL_Vout *vout, SDL_VoutOverlay *overlay)
         pixel_buffer = SDL_VoutOverlayVideoToolBox_GetCVPixelBufferRef(overlay);
     }
 #endif
+#if IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE
     [gl_view displayPixelBuffer:pixel_buffer];
+#endif
 
     if (gl_view.isThirdGLView) {
         IJKOverlay ijk_overlay;

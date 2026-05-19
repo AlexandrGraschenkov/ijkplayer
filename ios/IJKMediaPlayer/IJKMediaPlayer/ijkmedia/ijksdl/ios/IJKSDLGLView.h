@@ -28,6 +28,10 @@
 
 #include "ijksdl/ijksdl_vout.h"
 
+#ifndef IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE
+#define IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE 1
+#endif
+
 @interface IJKSDLGLView : UIView <IJKSDLGLViewProtocol>
 
 @property (nonatomic, assign) CGAffineTransform transformPoints;

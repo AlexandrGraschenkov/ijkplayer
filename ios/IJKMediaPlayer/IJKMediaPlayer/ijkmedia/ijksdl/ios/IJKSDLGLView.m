@@ -65,7 +65,9 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
 
     IJKSDLGLViewApplicationState _applicationState;
     CAEAGLLayer *_eaglLayer;
+#if IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE
     CVPixelBufferRef _currentPixelBuffer;
+#endif
 }
 
 @synthesize isThirdGLView              = _isThirdGLView;
@@ -234,7 +236,9 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     [self lockGLActive];
 
     _didStopGL = YES;
+#if IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE
     [self replaceCurrentPixelBuffer:NULL];
+#endif
 
     EAGLContext *prevContext = [EAGLContext currentContext];
     [EAGLContext setCurrentContext:_context];
@@ -608,6 +612,7 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
 
 - (CVPixelBufferRef)copyCurrentPixelBuffer
 {
+#if IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE
     [self lockGLActive];
 
     CVPixelBufferRef pixelBuffer = _currentPixelBuffer;
@@ -618,15 +623,21 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     [self unlockGLActive];
 
     return pixelBuffer;
+#else
+    return NULL;
+#endif
 }
 
 - (void)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
+#if IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE
     [self lockGLActive];
     [self replaceCurrentPixelBuffer:pixelBuffer];
     [self unlockGLActive];
+#endif
 }
 
+#if IJK_ENABLE_CURRENT_PIXEL_BUFFER_CACHE
 - (void)replaceCurrentPixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
     if (_currentPixelBuffer == pixelBuffer) {
@@ -641,6 +652,7 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     }
     _currentPixelBuffer = pixelBuffer;
 }
+#endif
 
 - (UIImage*)snapshotInternal
 {
