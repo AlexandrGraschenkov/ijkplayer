@@ -65,6 +65,7 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
 
     IJKSDLGLViewApplicationState _applicationState;
     CAEAGLLayer *_eaglLayer;
+    CVPixelBufferRef _currentPixelBuffer;
 }
 
 @synthesize isThirdGLView              = _isThirdGLView;
@@ -233,6 +234,7 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     [self lockGLActive];
 
     _didStopGL = YES;
+    [self replaceCurrentPixelBuffer:NULL];
 
     EAGLContext *prevContext = [EAGLContext currentContext];
     [EAGLContext setCurrentContext:_context];
@@ -444,8 +446,9 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     glViewport(0, 0, _backingWidth, _backingHeight);
 
-    if (!IJK_GLES2_Renderer_renderOverlay(_renderer, overlay, updateRenderBuffer))
+    if (!IJK_GLES2_Renderer_renderOverlay(_renderer, overlay, updateRenderBuffer)) {
         ALOGE("[EGL] IJK_GLES2_render failed\n");
+    }
 
     glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
     [_context presentRenderbuffer:GL_RENDERBUFFER];
@@ -601,6 +604,42 @@ typedef NS_ENUM(NSInteger, IJKSDLGLViewApplicationState) {
     [self unlockGLActive];
 
     return image;
+}
+
+- (CVPixelBufferRef)copyCurrentPixelBuffer
+{
+    [self lockGLActive];
+
+    CVPixelBufferRef pixelBuffer = _currentPixelBuffer;
+    if (pixelBuffer) {
+        CVPixelBufferRetain(pixelBuffer);
+    }
+
+    [self unlockGLActive];
+
+    return pixelBuffer;
+}
+
+- (void)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer
+{
+    [self lockGLActive];
+    [self replaceCurrentPixelBuffer:pixelBuffer];
+    [self unlockGLActive];
+}
+
+- (void)replaceCurrentPixelBuffer:(CVPixelBufferRef)pixelBuffer
+{
+    if (_currentPixelBuffer == pixelBuffer) {
+        return;
+    }
+
+    if (pixelBuffer) {
+        CVPixelBufferRetain(pixelBuffer);
+    }
+    if (_currentPixelBuffer) {
+        CVPixelBufferRelease(_currentPixelBuffer);
+    }
+    _currentPixelBuffer = pixelBuffer;
 }
 
 - (UIImage*)snapshotInternal

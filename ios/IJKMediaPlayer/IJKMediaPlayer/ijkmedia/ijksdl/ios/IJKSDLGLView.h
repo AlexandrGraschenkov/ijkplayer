@@ -34,6 +34,7 @@
 
 - (id) initWithFrame:(CGRect)frame;
 - (void)display:(SDL_VoutOverlay *)overlay checkAppState:(BOOL)checkAppState;
+- (void)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer;
 
 - (UIImage*) snapshot;
 - (void)setShouldLockWhileBeingMovedToWindow:(BOOL)shouldLockWhiteBeingMovedToWindow __attribute__((deprecated("unused")));
