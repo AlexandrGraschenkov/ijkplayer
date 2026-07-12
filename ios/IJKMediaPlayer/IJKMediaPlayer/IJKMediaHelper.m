@@ -716,6 +716,31 @@ cleanup:
     return subsCount;
 }
 
++ (NSArray<NSNumber *> *)audioStreamIndexesOfVideoAtPath:(NSString *)path {
+    AVFormatContext *pFormatCtx;
+
+    av_register_all();
+    pFormatCtx = avformat_alloc_context();
+
+    if (avformat_open_input(&pFormatCtx, [path UTF8String], NULL, NULL) != 0) {
+        avformat_close_input(&pFormatCtx);
+        return @[];
+    }
+
+    if (avformat_find_stream_info(pFormatCtx, NULL) < 0) {
+        avformat_close_input(&pFormatCtx);
+        return @[];
+    }
+    NSMutableArray<NSNumber *> *indexes = [NSMutableArray array];
+    for (int i = 0; i < pFormatCtx->nb_streams; i++) {
+        if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            [indexes addObject:@(i)];
+        }
+    }
+    avformat_close_input(&pFormatCtx);
+    return indexes;
+}
+
 + (VideoInfoObjc)getInfo:(NSString *)path {
     av_register_all();
     static AVFormatContext *pFormatCtx;

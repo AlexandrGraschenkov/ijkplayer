@@ -33,6 +33,8 @@ typedef void (^IJKAudioReaderCompletion)(NSError * _Nullable error);
 + (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTimePercent:(double)timePercent aspectSize:(CGSize)size; // 0..1
 + (NSTimeInterval)durationOfVideoAtPath:(NSString *)path;
 + (int)getSubtitlesCount:(NSString *)path;
+// Absolute ffmpeg stream indexes of the file's audio streams, in container order.
++ (NSArray<NSNumber *> *)audioStreamIndexesOfVideoAtPath:(NSString *)path NS_SWIFT_NAME(audioStreamIndexes(ofVideoAtPath:));
 + (VideoInfoObjc)getInfo:(NSString *)path;
 + (void)readSubtitles:(NSString *)videoPath saveFolder:(NSString *)saveFolder;
 @end
