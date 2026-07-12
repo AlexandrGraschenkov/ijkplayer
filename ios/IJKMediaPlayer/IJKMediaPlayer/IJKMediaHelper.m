@@ -24,18 +24,24 @@ static NSString *const IJKAudioReaderErrorDomain = @"tv.linguaplayer.ijk.audio-r
     NSInteger _requestedAudioStreamIndex;
     NSTimeInterval _startTime;
     NSTimeInterval _endTime;
+    NSDictionary<NSString *, NSString *> *_headers;
     dispatch_queue_t _queue;
     int32_t _cancelled;
     int32_t _started;
 }
 
 - (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime {
+    return [self initWithPath:path audioStreamIndex:audioStreamIndex startTime:startTime endTime:endTime headers:nil];
+}
+
+- (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime headers:(NSDictionary<NSString *, NSString *> *)headers {
     self = [super init];
     if (self) {
         _path = [path copy];
         _requestedAudioStreamIndex = audioStreamIndex;
         _startTime = MAX(0, startTime);
         _endTime = endTime;
+        _headers = [headers copy];
         _queue = dispatch_queue_create("tv.linguaplayer.ijk.audio-reader", DISPATCH_QUEUE_SERIAL);
     }
     return self;
@@ -195,7 +201,27 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
     formatContext->interrupt_callback.callback = ijk_audio_reader_interrupt;
     formatContext->interrupt_callback.opaque = (__bridge void *)self;
 
-    if (avformat_open_input(&formatContext, _path.UTF8String, NULL, NULL) < 0) {
+    AVDictionary *openOptions = NULL;
+    BOOL isNetworkInput = [_path hasPrefix:@"http://"] || [_path hasPrefix:@"https://"];
+    if (isNetworkInput) {
+        if (_headers.count > 0) {
+            NSMutableString *headerLines = [NSMutableString string];
+            [_headers enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+                [headerLines appendFormat:@"%@: %@\r\n", key, value];
+            }];
+            av_dict_set(&openOptions, "headers", headerLines.UTF8String, 0);
+        }
+        if (![[_headers.allKeys valueForKey:@"lowercaseString"] containsObject:@"user-agent"]) {
+            av_dict_set(&openOptions, "user_agent", "Lingua Player", 0);
+        }
+        // Survive CDN connection drops during long reads instead of failing the whole run.
+        av_dict_set(&openOptions, "reconnect", "1", 0);
+        av_dict_set(&openOptions, "reconnect_streamed", "1", 0);
+        av_dict_set(&openOptions, "reconnect_delay_max", "5", 0);
+    }
+    int openResult = avformat_open_input(&formatContext, _path.UTF8String, NULL, &openOptions);
+    av_dict_free(&openOptions);
+    if (openResult < 0) {
         resultError = [self errorWithCode:3 description:@"Unable to open the media file."];
         goto cleanup;
     }
