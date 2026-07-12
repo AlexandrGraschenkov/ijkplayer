@@ -22,7 +22,6 @@ typedef void (^IJKAudioReaderCompletion)(NSError * _Nullable error);
 
 @interface IJKAudioReader : NSObject
 - (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
-// `headers` are applied only to http(s) inputs (online videos share the playback request's headers).
 - (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers;
 - (void)startWithAudioCallback:(IJKAudioReaderDataCallback)audioCallback progress:(IJKAudioReaderProgressCallback _Nullable)progress completion:(IJKAudioReaderCompletion)completion;
 - (void)cancel;

@@ -214,7 +214,7 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
         if (![[_headers.allKeys valueForKey:@"lowercaseString"] containsObject:@"user-agent"]) {
             av_dict_set(&openOptions, "user_agent", "Lingua Player", 0);
         }
-        // Survive CDN connection drops during long reads instead of failing the whole run.
+        // Reconnect long-running network reads.
         av_dict_set(&openOptions, "reconnect", "1", 0);
         av_dict_set(&openOptions, "reconnect_streamed", "1", 0);
         av_dict_set(&openOptions, "reconnect_delay_max", "5", 0);
