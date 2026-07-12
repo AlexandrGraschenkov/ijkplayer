@@ -16,6 +16,16 @@ typedef struct VideoInfoObjc {
     BOOL subtitles;
 } VideoInfoObjc;
 
+typedef void (^IJKAudioReaderDataCallback)(NSData *audioData, NSTimeInterval position);
+typedef void (^IJKAudioReaderProgressCallback)(NSTimeInterval position, NSTimeInterval duration);
+typedef void (^IJKAudioReaderCompletion)(NSError * _Nullable error);
+
+@interface IJKAudioReader : NSObject
+- (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+- (void)startWithAudioCallback:(IJKAudioReaderDataCallback)audioCallback progress:(IJKAudioReaderProgressCallback _Nullable)progress completion:(IJKAudioReaderCompletion)completion;
+- (void)cancel;
+@end
+
 @interface IJKMediaHelper : NSObject
 + (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTime:(NSTimeInterval)time aspectSize:(CGSize)size;
 + (nullable UIImage *)thumbnailOfVideoAtPath:(NSString*)path atTimePercent:(double)timePercent aspectSize:(CGSize)size; // 0..1
