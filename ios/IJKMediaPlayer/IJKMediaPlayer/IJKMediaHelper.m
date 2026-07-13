@@ -15,6 +15,8 @@
 #import <libswresample/swresample.h>
 #import <libavutil/timestamp.h>
 
+#include <math.h>
+
 #import "IJKSubtitleWriter.h"
 
 static NSString *const IJKAudioReaderErrorDomain = @"tv.linguaplayer.ijk.audio-reader";
@@ -25,6 +27,7 @@ static NSString *const IJKAudioReaderErrorDomain = @"tv.linguaplayer.ijk.audio-r
     NSTimeInterval _startTime;
     NSTimeInterval _endTime;
     NSDictionary<NSString *, NSString *> *_headers;
+    int _outputSampleRate;
     dispatch_queue_t _queue;
     int32_t _cancelled;
     int32_t _started;
@@ -35,6 +38,10 @@ static NSString *const IJKAudioReaderErrorDomain = @"tv.linguaplayer.ijk.audio-r
 }
 
 - (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime headers:(NSDictionary<NSString *, NSString *> *)headers {
+    return [self initWithPath:path audioStreamIndex:audioStreamIndex startTime:startTime endTime:endTime headers:headers outputSampleRate:16000];
+}
+
+- (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime headers:(NSDictionary<NSString *, NSString *> *)headers outputSampleRate:(int)outputSampleRate {
     self = [super init];
     if (self) {
         _path = [path copy];
@@ -42,6 +49,7 @@ static NSString *const IJKAudioReaderErrorDomain = @"tv.linguaplayer.ijk.audio-r
         _startTime = MAX(0, startTime);
         _endTime = endTime;
         _headers = [headers copy];
+        _outputSampleRate = outputSampleRate > 0 ? outputSampleRate : 16000;
         _queue = dispatch_queue_create("tv.linguaplayer.ijk.audio-reader", DISPATCH_QUEUE_SERIAL);
     }
     return self;
@@ -90,6 +98,7 @@ typedef struct IJKAudioReadState {
     NSTimeInterval endTime;
     NSTimeInterval mediaDuration;
     NSTimeInterval runningPosition;
+    int outputSampleRate;
     BOOL reachedEnd;
     BOOL decoderDone;
 } IJKAudioReadState;
@@ -101,7 +110,7 @@ static void ijk_audio_reader_emit(IJKAudioReadState *s,
                                   IJKAudioReaderDataCallback audioCallback,
                                   IJKAudioReaderProgressCallback progress) {
     position = MAX(0, position);
-    NSTimeInterval convertedDuration = (NSTimeInterval)sampleCount / 16000.0;
+    NSTimeInterval convertedDuration = (NSTimeInterval)sampleCount / (NSTimeInterval)s->outputSampleRate;
     NSTimeInterval frameEnd = position + convertedDuration;
     s->runningPosition = frameEnd;
     if (s->endTime > s->startTime && position >= s->endTime) {
@@ -111,10 +120,28 @@ static void ijk_audio_reader_emit(IJKAudioReadState *s,
     if (frameEnd <= s->startTime) {
         return;
     }
-    NSData *data = [NSData dataWithBytes:samples length:(NSUInteger)sampleCount * sizeof(int16_t)];
-    audioCallback(data, position);
+    int firstSample = 0;
+    int lastSample = sampleCount;
+    if (position < s->startTime) {
+        firstSample = (int)ceil((s->startTime - position) * s->outputSampleRate);
+    }
+    if (s->endTime > s->startTime && frameEnd > s->endTime) {
+        lastSample = (int)floor((s->endTime - position) * s->outputSampleRate);
+        s->reachedEnd = YES;
+    }
+    firstSample = MAX(0, MIN(firstSample, sampleCount));
+    lastSample = MAX(firstSample, MIN(lastSample, sampleCount));
+    if (lastSample == firstSample) {
+        return;
+    }
+
+    NSTimeInterval emittedPosition = position + (NSTimeInterval)firstSample / (NSTimeInterval)s->outputSampleRate;
+    NSTimeInterval emittedEnd = position + (NSTimeInterval)lastSample / (NSTimeInterval)s->outputSampleRate;
+    NSData *data = [NSData dataWithBytes:samples + (NSUInteger)firstSample * sizeof(int16_t)
+                                   length:(NSUInteger)(lastSample - firstSample) * sizeof(int16_t)];
+    audioCallback(data, emittedPosition);
     if (progress) {
-        progress(frameEnd, s->mediaDuration);
+        progress(emittedEnd, s->mediaDuration);
     }
 }
 
@@ -144,11 +171,11 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
         // The resampler still buffers samples from previous frames, so the data
         // produced by this conversion starts that much earlier than the frame PTS.
         if (timestamp != AV_NOPTS_VALUE) {
-            position -= (NSTimeInterval)swr_get_delay(s->swrContext, 16000) / 16000.0;
+            position -= (NSTimeInterval)swr_get_delay(s->swrContext, s->outputSampleRate) / (NSTimeInterval)s->outputSampleRate;
         }
 
         int outputSamples = (int)av_rescale_rnd(swr_get_delay(s->swrContext, s->frame->sample_rate) + s->frame->nb_samples,
-                                                16000,
+                                                s->outputSampleRate,
                                                 s->frame->sample_rate,
                                                 AV_ROUND_UP);
         int outputSize = av_samples_get_buffer_size(NULL, 1, outputSamples, AV_SAMPLE_FMT_S16, 1);
@@ -260,7 +287,7 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
     swrContext = swr_alloc_set_opts(NULL,
                                    AV_CH_LAYOUT_MONO,
                                    AV_SAMPLE_FMT_S16,
-                                   16000,
+                                   _outputSampleRate,
                                    inputLayout,
                                    codecContext->sample_fmt,
                                    codecContext->sample_rate,
@@ -304,6 +331,7 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
         .endTime = _endTime,
         .mediaDuration = formatContext->duration == AV_NOPTS_VALUE ? 0 : (NSTimeInterval)formatContext->duration / AV_TIME_BASE,
         .runningPosition = _startTime,
+        .outputSampleRate = _outputSampleRate,
         .reachedEnd = NO,
         .decoderDone = NO,
     };
@@ -341,7 +369,7 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
                 break;
             }
             while (![self isCancelled] && !state.reachedEnd) {
-                int pendingSamples = (int)swr_get_delay(swrContext, 16000);
+                int pendingSamples = (int)swr_get_delay(swrContext, _outputSampleRate);
                 if (pendingSamples <= 0) {
                     break;
                 }

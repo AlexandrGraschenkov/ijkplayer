@@ -20,9 +20,11 @@ typedef void (^IJKAudioReaderDataCallback)(NSData *audioData, NSTimeInterval pos
 typedef void (^IJKAudioReaderProgressCallback)(NSTimeInterval position, NSTimeInterval duration);
 typedef void (^IJKAudioReaderCompletion)(NSError * _Nullable error);
 
+// Emits mono signed 16-bit PCM at `outputSampleRate` (16 kHz by default).
 @interface IJKAudioReader : NSObject
 - (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
 - (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers;
+- (instancetype)initWithPath:(NSString *)path audioStreamIndex:(NSInteger)audioStreamIndex startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers outputSampleRate:(int)outputSampleRate;
 - (void)startWithAudioCallback:(IJKAudioReaderDataCallback)audioCallback progress:(IJKAudioReaderProgressCallback _Nullable)progress completion:(IJKAudioReaderCompletion)completion;
 - (void)cancel;
 @end
