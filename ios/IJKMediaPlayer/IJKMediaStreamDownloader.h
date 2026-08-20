@@ -44,6 +44,15 @@ typedef void(^DownloadProgressClosure)(BOOL finished, BOOL canceled, long long l
                   progress:(DownloadProgressClosure)progress
                   canceled:(BOOL*)canceled;
 
+/// `headers` уходят в ffmpeg как опции ввода (`user_agent` + `headers`), в том числе
+/// на дочерние запросы сегментов HLS. Без них хостинги вроде googlevideo отвечают 403.
++ (int)downloadVideoStream:(NSURL*)url
+                toLocation:(NSURL*)location
+                   headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers
+              chooseTracks:(FilterTracksClosure)filterClosure
+                  progress:(DownloadProgressClosure)progress
+                  canceled:(BOOL*)canceled;
+
 + (int)downloadVideoStream:(NSURL*)url
                 toLocation:(NSURL*)location;
 @end

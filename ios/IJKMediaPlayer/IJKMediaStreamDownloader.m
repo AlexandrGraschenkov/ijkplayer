@@ -319,8 +319,47 @@ bool selectTracks(AVFormatContext *ctx, FilterTracksClosure filterClosure, int *
     return true;
 }
 
+/// `user_agent` у ffmpeg — отдельная опция, остальные заголовки идут одной CRLF-строкой в `headers`
+static AVDictionary *IJKCreateHTTPInputOptions(NSDictionary<NSString *, NSString *> *headers) {
+    if (headers.count == 0) {
+        return NULL;
+    }
+
+    AVDictionary *options = NULL;
+    NSMutableString *headerLines = [NSMutableString new];
+    for (NSString *key in headers) {
+        NSString *value = headers[key];
+        if (key.length == 0 || value.length == 0) {
+            continue;
+        }
+        if ([key caseInsensitiveCompare:@"User-Agent"] == NSOrderedSame) {
+            av_dict_set(&options, "user_agent", [value UTF8String], 0);
+        } else {
+            [headerLines appendFormat:@"%@: %@\r\n", key, value];
+        }
+    }
+    if (headerLines.length > 0) {
+        av_dict_set(&options, "headers", [headerLines UTF8String], 0);
+    }
+    return options;
+}
+
 + (int)downloadVideoStream:(NSURL*)url
                 toLocation:(NSURL*)location
+              chooseTracks:(FilterTracksClosure)filterClosure
+                  progress:(DownloadProgressClosure)progress
+                  canceled:(BOOL*)canceled {
+    return [self downloadVideoStream:url
+                          toLocation:location
+                             headers:nil
+                        chooseTracks:filterClosure
+                            progress:progress
+                            canceled:canceled];
+}
+
++ (int)downloadVideoStream:(NSURL*)url
+                toLocation:(NSURL*)location
+                   headers:(NSDictionary<NSString *, NSString *> *)headers
               chooseTracks:(FilterTracksClosure)filterClosure
                   progress:(DownloadProgressClosure)progress
                   canceled:(BOOL*)canceled {
@@ -334,11 +373,15 @@ bool selectTracks(AVFormatContext *ctx, FilterTracksClosure filterClosure, int *
     int stream_index = 0;
     int *stream_mapping = NULL;
     int stream_mapping_size = 0;
+    AVDictionary *input_options = IJKCreateHTTPInputOptions(headers);
 
     in_filename  = [[url absoluteString] cStringUsingEncoding:NSUTF8StringEncoding];
     out_filename = [[location path] cStringUsingEncoding:NSUTF8StringEncoding];
 
-    if ((ret = avformat_open_input(&ifmt_ctx, in_filename, 0, 0)) < 0) {
+    // avformat_open_input забирает распознанные опции из словаря, остаток освобождаем сами
+    ret = avformat_open_input(&ifmt_ctx, in_filename, 0, &input_options);
+    av_dict_free(&input_options);
+    if (ret < 0) {
         fprintf(stderr, "Could not open input file '%s'", in_filename);
         goto end;
     }
