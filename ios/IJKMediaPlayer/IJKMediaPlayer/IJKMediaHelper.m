@@ -204,6 +204,12 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
     return 0;
 }
 
+static void ijk_audio_reader_discard_other_streams(AVFormatContext *formatContext, int audioStreamIndex) {
+    for (unsigned int i = 0; i < formatContext->nb_streams; i++) {
+        formatContext->streams[i]->discard = (int)i == audioStreamIndex ? AVDISCARD_DEFAULT : AVDISCARD_ALL;
+    }
+}
+
 - (NSError *)readWithAudioCallback:(IJKAudioReaderDataCallback)audioCallback progress:(IJKAudioReaderProgressCallback)progress {
     AVFormatContext *formatContext = NULL;
     AVCodecContext *codecContext = NULL;
@@ -252,6 +258,11 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
         resultError = [self errorWithCode:3 description:@"Unable to open the media file."];
         goto cleanup;
     }
+    // Discard other streams before probing, so HLS doesn't download video variants.
+    if (_requestedAudioStreamIndex >= 0 && _requestedAudioStreamIndex < formatContext->nb_streams &&
+        formatContext->streams[_requestedAudioStreamIndex]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+        ijk_audio_reader_discard_other_streams(formatContext, (int)_requestedAudioStreamIndex);
+    }
     if (avformat_find_stream_info(formatContext, NULL) < 0) {
         resultError = [self errorWithCode:4 description:@"Unable to read media stream information."];
         goto cleanup;
@@ -267,6 +278,7 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
         resultError = [self errorWithCode:5 description:@"The media file does not contain a readable audio stream."];
         goto cleanup;
     }
+    ijk_audio_reader_discard_other_streams(formatContext, audioStreamIndex);
 
     AVStream *audioStream = formatContext->streams[audioStreamIndex];
     AVCodec *codec = avcodec_find_decoder(audioStream->codecpar->codec_id);
@@ -309,7 +321,12 @@ static int ijk_audio_reader_drain(IJKAudioReader *reader,
 
     if (_startTime > 0) {
         int64_t timestamp = av_rescale_q((int64_t)((_startTime + streamStartOffset) * AV_TIME_BASE), AV_TIME_BASE_Q, audioStream->time_base);
-        avformat_seek_file(formatContext, audioStreamIndex, INT64_MIN, timestamp, timestamp, AVSEEK_FLAG_BACKWARD);
+        int seekResult = avformat_seek_file(formatContext, audioStreamIndex, INT64_MIN, timestamp, timestamp, AVSEEK_FLAG_BACKWARD);
+        // Reading a network stream from the beginning can take minutes, so fail instead.
+        if (seekResult < 0 && isNetworkInput) {
+            resultError = [self errorWithCode:13 description:@"Unable to seek to the requested time."];
+            goto cleanup;
+        }
         avcodec_flush_buffers(codecContext);
     }
 

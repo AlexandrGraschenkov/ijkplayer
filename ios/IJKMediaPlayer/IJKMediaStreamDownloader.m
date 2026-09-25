@@ -178,7 +178,58 @@ static int64_t calculate_total_duration(AVFormatContext *ifmt_ctx) {
     return total_duration;
 }
 
+/// Метки времени последнего записанного пакета потока
+typedef struct {
+    int64_t last_dts;
+    /// Последний шаг между настоящими DTS — по нему достраиваем пропущенные метки
+    int64_t last_delta;
+} IJKStreamTiming;
+
+/// Шаг между кадрами: у mpegts демуксер часто не заполняет duration, поэтому берём шаг
+/// предыдущих пакетов, а если его ещё нет — частоту кадров потока.
+static int64_t packetStep(AVPacket *pkt, AVStream *stream, IJKStreamTiming *timing) {
+    if (pkt->duration > 0) {
+        return pkt->duration;
+    }
+    if (timing->last_delta > 0) {
+        return timing->last_delta;
+    }
+    AVRational rates[2] = { stream->avg_frame_rate, stream->r_frame_rate };
+    for (int i = 0; i < 2; i++) {
+        if (rates[i].num > 0 && rates[i].den > 0) {
+            int64_t step = av_rescale_q(1, av_inv_q(rates[i]), stream->time_base);
+            if (step > 0) {
+                return step;
+            }
+        }
+    }
+    return 1;
+}
+
+/// Часть потоков отдаёт пакеты без меток времени: например YouTube кладёт два кадра в один
+/// PES, и второй остаётся без PTS/DTS. Такой пакет mp4-муксер не принимает, и сборка обрывается
+/// на первом же кадре. Здесь восстанавливаем метки по предыдущему пакету и следим, чтобы DTS
+/// строго росли, а PTS не оказывался раньше DTS — иначе муксер тоже вернёт ошибку.
+static void fixPacketTimestamps(AVPacket *pkt, AVStream *stream, IJKStreamTiming *timing) {
+    if (pkt->dts == AV_NOPTS_VALUE) {
+        pkt->dts = timing->last_dts == AV_NOPTS_VALUE
+            ? 0
+            : timing->last_dts + packetStep(pkt, stream, timing);
+    } else if (timing->last_dts != AV_NOPTS_VALUE && pkt->dts > timing->last_dts) {
+        timing->last_delta = pkt->dts - timing->last_dts;
+    }
+    if (timing->last_dts != AV_NOPTS_VALUE && pkt->dts <= timing->last_dts) {
+        pkt->dts = timing->last_dts + 1;
+    }
+    if (pkt->pts == AV_NOPTS_VALUE || pkt->pts < pkt->dts) {
+        pkt->pts = pkt->dts;
+    }
+
+    timing->last_dts = pkt->dts;
+}
+
 static int downloadStream(AVFormatContext *ifmt_ctx, const AVOutputFormat *ofmt, AVFormatContext **ofmt_ctx, const char *out_filename, int *stream_mapping, int stream_mapping_size, DownloadProgressClosure progress, bool *canceled) {
+    IJKStreamTiming *timings = NULL;
     AVPacket *pkt = av_packet_alloc();
     if (!pkt) {
         fprintf(stderr, "Could not allocate AVPacket\n");
@@ -206,6 +257,16 @@ static int downloadStream(AVFormatContext *ifmt_ctx, const AVOutputFormat *ofmt,
         goto end;
     }
     
+    timings = av_calloc(ifmt_ctx->nb_streams, sizeof(IJKStreamTiming));
+    if (!timings) {
+        ret = AVERROR(ENOMEM);
+        goto end;
+    }
+    for (int i = 0; i < ifmt_ctx->nb_streams; i++) {
+        timings[i].last_dts = AV_NOPTS_VALUE;
+        timings[i].last_delta = 0;
+    }
+
     double total_duration = ifmt_ctx->duration;// calculate_total_duration(ifmt_ctx);
     double current_duration = 0;
     int progress_stream_idx = -1;
@@ -228,18 +289,21 @@ static int downloadStream(AVFormatContext *ifmt_ctx, const AVOutputFormat *ofmt,
         if (ret < 0)
             break;
         
-        in_stream  = ifmt_ctx->streams[(pkt)->stream_index];
-        if (pkt->stream_index >= stream_mapping_size ||
-            stream_mapping[pkt->stream_index] < 0) {
+        int in_stream_idx = pkt->stream_index;
+        in_stream  = ifmt_ctx->streams[in_stream_idx];
+        if (in_stream_idx >= stream_mapping_size ||
+            stream_mapping[in_stream_idx] < 0) {
             av_packet_unref(pkt);
             continue;
         }
         
-        pkt->stream_index = stream_mapping[pkt->stream_index];
+        fixPacketTimestamps(pkt, in_stream, &timings[in_stream_idx]);
+        
+        pkt->stream_index = stream_mapping[in_stream_idx];
         out_stream = (*ofmt_ctx)->streams[pkt->stream_index];
 //        log_packet(ifmt_ctx, pkt, "in");
         
-        if (progress_stream_idx == pkt->stream_index) {
+        if (progress_stream_idx == in_stream_idx) {
             current_duration = av_rescale_q(pkt->pts, in_stream->time_base, AV_TIME_BASE_Q);
             double progressVal = (current_duration / total_duration);
             progressVal = MAX(0, MIN(1, progressVal));
@@ -264,6 +328,7 @@ static int downloadStream(AVFormatContext *ifmt_ctx, const AVOutputFormat *ofmt,
     av_write_trailer(*ofmt_ctx);
     
 end:
+    av_freep(&timings);
     av_packet_free(&pkt);
     return ret;
 }
